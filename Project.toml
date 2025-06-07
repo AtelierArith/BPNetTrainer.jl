@@ -2,3 +2,17 @@ name = "LuxBPNet"
 uuid = "44ebcf7b-4b1f-4ed7-9dac-754c8909606b"
 authors = ["Satoshi Terasaki <terasakisatoshi.math@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+CodecBzip2 = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+Scratch = "6c6a2e73-6563-6170-7368-637461726353"
+Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
+TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
+
+[compat]
+CodecBzip2 = "0.8.5"
+Downloads = "1.6.0"
+Scratch = "1.2.1"
+Tar = "1.10.0"
+TranscodingStreams = "0.11.3"
