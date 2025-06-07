@@ -1,5 +1,5 @@
-const num_of_maxparameters = 4
-
+const NUM_MAX_FINGERPRINT_PARAMS = 4
+const NENV_MAX = 2
 
 struct FingerPrint
     itype::Int64
@@ -21,9 +21,6 @@ struct FingerPrint
     sfval_avg::Vector{Float64}
     sfval_cov::Vector{Float64}
 end
-
-const NENV_MAX = 2
-
 
 function FingerPrint(
     atomtype,
@@ -102,16 +99,15 @@ function chebyshevparam(nenv, kwargs)
         num_of_coeffs *= 2
     end
     Rc = max(kwargs[:angular_Rc], kwargs[:radial_Rc])
-    sfparam = zeros(num_of_maxparameters, num_of_coeffs)
+    sfparam = zeros(NUM_MAX_FINGERPRINT_PARAMS, num_of_coeffs)
     sfparam[1, 1] = kwargs[:radial_Rc]
     sfparam[2, 1] = kwargs[:radial_N]
     sfparam[3, 1] = kwargs[:angular_Rc]
     sfparam[4, 1] = kwargs[:angular_N]
     sfenv = zeros(NENV_MAX, num_of_coeffs)
-    num_of_parameters = num_of_maxparameters
+    num_of_parameters = NUM_MAX_FINGERPRINT_PARAMS
 
     return sfparam, sfenv, Rc, num_of_coeffs, num_of_parameters
-
 end
 
 
@@ -157,7 +153,7 @@ function get_multifingerprints_info(fingerprint::FingerPrint)
     #println(num_kinds)
     startindex = 1
     for ikind = 1:num_kinds
-        istart = 3 + (ikind - 1) * (num_of_maxparameters + 2)
+        istart = 3 + (ikind - 1) * (NUM_MAX_FINGERPRINT_PARAMS + 2)
         ibasis = Int(fingerprint_parameters[istart])
         if ibasis == 1
             basistype = "Chebyshev"
@@ -168,9 +164,7 @@ function get_multifingerprints_info(fingerprint::FingerPrint)
         end
 
         numparams_i = Int(fingerprint_parameters[istart+1])
-        params = fingerprint_parameters[(istart+2):(istart+1+num_of_maxparameters)]
-        #println(numparams_i)
-        #println(params)
+        params = fingerprint_parameters[(istart+2):(istart+1+NUM_MAX_FINGERPRINT_PARAMS)]
         endindex = startindex + numparams_i - 1
 
         fingerprint_parameters_set[ikind] = FingerPrint_params(
