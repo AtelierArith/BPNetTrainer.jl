@@ -12,8 +12,8 @@ using Scratch: @get_scratch!
 const DATASET_DIR = Ref{String}()
 
 include("fingerprints.jl")
-include("prerequisites/data_generator.jl")
-include("prerequisites/data_downloader.jl")
+include("prerequisites/generator.jl")
+include("prerequisites/downloader.jl")
 include("dataset.jl")
 
 function __init__()
