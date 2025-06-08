@@ -2,6 +2,8 @@ module LuxBPNet
 
 using Downloads
 using TOML
+using Random: shuffle
+using SparseArrays: sparse
 
 using BPNET_jll: BPNET_jll
 using Tar: Tar
@@ -9,7 +11,6 @@ using CodecBzip2: CodecBzip2
 using TranscodingStreams: TranscodingStreams
 using Scratch: @get_scratch!
 using JLD2: JLD2, jldopen
-using Random: shuffle
 
 const DATASET_ROOT = Ref{String}()
 

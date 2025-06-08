@@ -7,7 +7,8 @@ struct BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
 end
 
 function BPDataMemory(dataset::BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds}, filename) where {keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds}
-    fp = jldopen(filename, "r")
+    d = DATASET_ROOT[]
+    fp = jldopen(joinpath(d, filename), "r")
     num = Int(fp["num_of_structs"])
     energy_all = zeros(Float64, num)
     natoms_all = zeros(Int64, num)
@@ -33,7 +34,6 @@ function BPDataMemory(dataset::BPDataset{keys,num_of_types,num_of_structs,Tfp,Td
         natoms_all
     )
 end
-export BPDataMemory
 
 Base.length(dataset::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA} = num_of_structs
 
