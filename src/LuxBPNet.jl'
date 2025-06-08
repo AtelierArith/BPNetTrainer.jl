@@ -11,7 +11,6 @@ using CodecBzip2: CodecBzip2
 using TranscodingStreams: TranscodingStreams
 using Scratch: @get_scratch!
 using JLD2: JLD2, jldopen
-using Flux
 
 const DATASET_ROOT = Ref{String}()
 
