@@ -20,10 +20,17 @@ struct MyData{D, L}
 end
 
 # ╔═╡ 24a34b36-33c7-4a71-9fbd-b4854b5db3c2
-mydata = MyData(
-	[rand(Float32, 10, 3), rand(Float32, 10, 3)],
-	[1,1,1]
-)
+begin
+	mydata = MyData(
+		[rand(Float32, 10, 3), rand(Float32, 10, 3)],
+		[1,1,1]
+	)
+	
+	mydata2 = MyData(
+		[rand(Float32, 10, 3), rand(Float32, 10, 3)],
+		[1,1,1]
+	)
+end
 
 # ╔═╡ abf69b19-cc68-4f0f-bfdb-d2589e77aa19
 begin
@@ -57,6 +64,22 @@ let
 	)
 	ps, st = Lux.setup(rng, model)
 	model(mydata, ps, st)
+end
+
+# ╔═╡ 18b71bb7-5454-41f4-971c-06c233e0d013
+let
+	rng = Xoshiro(0)
+	model1 = LayerAcceptsInputWithDataAndLabels(
+		Chain(Dense(10, 2)), Chain(Dense(10, 2))
+	)
+	model2 = LayerAcceptsInputWithDataAndLabels(
+		Chain(Dense(10, 2)), Chain(Dense(10, 2))
+	)
+
+	model = Parallel(+, model1, model2)
+
+	ps, st = Lux.setup(rng, model)
+	model((mydata, mydata2), ps, st)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -824,5 +847,6 @@ version = "5.11.0+0"
 # ╠═abf69b19-cc68-4f0f-bfdb-d2589e77aa19
 # ╠═1c23f1e6-fdfb-4672-a993-9a5124e05092
 # ╠═7d856b2d-c81a-42e7-ac60-83fb370f8041
+# ╠═18b71bb7-5454-41f4-971c-06c233e0d013
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
