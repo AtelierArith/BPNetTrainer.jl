@@ -42,7 +42,7 @@ end
 traindata = BPDataMemory(bpdata, filename_train)
 
 # ╔═╡ 4a5acf2e-8d94-4ae5-b786-6acd9cd417e1
-model = LuxBPNet.FluxEdition.FluxBPNet(toml) |> Flux.f64
+model = LuxBPNet.FluxEdition.FluxBPNet(toml, bpdata.fingerprint_parameters) |> Flux.f64
 
 # ╔═╡ 7c1ad009-6873-4670-8232-9574db0eb069
 x, y = traindata[1]

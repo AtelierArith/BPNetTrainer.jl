@@ -50,16 +50,18 @@ function make_dense_chain(
     return Flux.Chain(layers...)
 end
 
-function FluxBPNet(toml::Dict{String,Any})
+function FluxBPNet(toml::Dict{String,Any}, fingerprint_params)
     atomtypes = toml["atomtypes"]
     numbasiskinds = toml["numbasiskinds"]
     chains = map(enumerate(atomtypes)) do (itype, name)
+        fingerprint_param = fingerprint_params[itype]
+
         itype_chains = Flux.Chain[]
         for ikind = 1:numbasiskinds
+            inputdim = fingerprint_param[ikind].numparams
             hidden_dims = toml[name]["layers"]
             activations = getproperty.(Ref(Flux), Symbol.(toml[name]["activations"]))
 
-            inputdim = 32 # from fingerprint params
             c = make_dense_chain(inputdim, hidden_dims, activations)
             push!(itype_chains, c)
         end
