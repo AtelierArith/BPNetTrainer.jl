@@ -1,23 +1,3 @@
-struct FluxBPNet{Chains}
-    chains::Chains
-end
-
-function apply_model(m, x)
-    m(x)
-end
-
-function apply_bpmultimodel(chains, xi)
-    ei = sum(map(apply_model, chains, xi.data))
-    return ei * xi.labels
-end
-
-function (m::FluxBPNet)(x)
-    energies = sum(eachindex(m.chains, axes(x, 1))) do i
-        apply_bpmultimodel(m.chains[i], x[i])
-    end
-    return energies
-end
-
 function make_dense_chain(
     inputdim::Int,
     hidden_dims::Vector{Int},
