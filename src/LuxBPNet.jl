@@ -9,6 +9,7 @@ using CodecBzip2: CodecBzip2
 using TranscodingStreams: TranscodingStreams
 using Scratch: @get_scratch!
 using JLD2: JLD2, jldopen
+using Random: shuffle
 
 const DATASET_ROOT = Ref{String}()
 
@@ -20,8 +21,9 @@ end
 include("fingerprints.jl")
 include("prerequisites/generator.jl")
 include("prerequisites/downloader.jl")
-include("dataset.jl")
-include("datawriter.jl")
+include("dataset/bpdataset.jl")
+include("dataset/jld2writer.jl")
+include("dataset/bpdatamemory.jl")
 
 function __init__()
     global DATASET_ROOT
