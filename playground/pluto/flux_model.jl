@@ -34,7 +34,7 @@ begin
 	end
 	
 	function apply_bpmultimodel(ci, xi)
-		ei = ci(xi.data)
+		ei = map(apply_model, ci, xi.data)
 		return ei * xi.labels
 	end
 	

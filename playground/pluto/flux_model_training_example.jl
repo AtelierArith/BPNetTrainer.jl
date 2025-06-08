@@ -47,6 +47,9 @@ model = LuxBPNet.FluxEdition.FluxBPNet(toml, bpdata.fingerprint_parameters) |> F
 # ╔═╡ 7c1ad009-6873-4670-8232-9574db0eb069
 x, y = traindata[1]
 
+# ╔═╡ ef934b83-c651-4b97-ae6f-f8def737f28b
+x
+
 # ╔═╡ 2adb7aeb-16ee-499d-a468-1a4c90ba5d8a
 model(x)
 
@@ -87,6 +90,7 @@ end
 # ╠═d038767e-c41f-46fa-8dc3-a8faf8ed85ec
 # ╠═4a5acf2e-8d94-4ae5-b786-6acd9cd417e1
 # ╠═7c1ad009-6873-4670-8232-9574db0eb069
+# ╠═ef934b83-c651-4b97-ae6f-f8def737f28b
 # ╠═2adb7aeb-16ee-499d-a468-1a4c90ba5d8a
 # ╠═389ae298-8eb8-4531-9b24-76681deff0a3
 # ╠═efc015ed-5617-4550-b5cc-d978f8e7a39d
