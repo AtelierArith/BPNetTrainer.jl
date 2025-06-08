@@ -1,4 +1,4 @@
-module LuxBPNet
+module BPNetTrainer
 
 using Downloads
 using TOML
@@ -33,4 +33,4 @@ function __init__()
     DATASET_ROOT[] = @get_scratch!("dataset")
 end
 
-end # module LuxBPNet
+end # module BPNetTrainer

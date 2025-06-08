@@ -9,11 +9,11 @@ begin
     using Pkg
     using Revise
     Pkg.activate(dirname(dirname(@__DIR__)))
-    using LuxBPNet
-    using LuxBPNet: download_dataset, generate_example_dataset
-    using LuxBPNet: make_train_and_test_jld2
-    using LuxBPNet: adddata!, set_numfiles!, make_descriptor
-    using LuxBPNet: FingerPrint, DataGenerator, BPDataset, BPDataMemory
+    using BPNetTrainer
+    using BPNetTrainer: download_dataset, generate_example_dataset
+    using BPNetTrainer: make_train_and_test_jld2
+    using BPNetTrainer: adddata!, set_numfiles!, make_descriptor
+    using BPNetTrainer: FingerPrint, DataGenerator, BPDataset, BPDataMemory
 end
 
 # ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
@@ -26,7 +26,7 @@ end
 begin
     download_dataset()
     generate_example_dataset()
-    tomlpath = joinpath(pkgdir(LuxBPNet), "configs", "test_input.toml")
+    tomlpath = joinpath(pkgdir(BPNetTrainer), "configs", "test_input.toml")
     bpdata, toml = BPDataset(tomlpath)
 end
 
@@ -42,7 +42,7 @@ end
 traindata = BPDataMemory(bpdata, filename_train)
 
 # ╔═╡ 4a5acf2e-8d94-4ae5-b786-6acd9cd417e1
-model = LuxBPNet.FluxEdition.FluxBPNet(toml, bpdata.fingerprint_parameters) |> Flux.f64
+model = BPNetTrainer.FluxEdition.FluxBPNet(toml, bpdata.fingerprint_parameters) |> Flux.f64
 
 # ╔═╡ 7c1ad009-6873-4670-8232-9574db0eb069
 x, y = traindata[1]
@@ -58,7 +58,7 @@ begin
 	numbatch = toml["numbatch"]
 	train_loader = DataLoader(traindata; batchsize=numbatch)
 	println("num. of training data $(length(traindata))")
-	
+
 	testdata = BPDataMemory(bpdata, filename_test)
 	test_loader = DataLoader(testdata; batchsize=1)
 	println("num. of testing data $(length(testdata))")
@@ -69,15 +69,15 @@ begin
 	θ, re = Flux.destructure(model)
 	#grad = Flux.gradient(θ -> sum(re(θ)(x)), θ)
 	#display(grad[1])
-	
-	state = LuxBPNet.FluxEdition.set_state(toml, θ)
+
+	state = BPNetTrainer.FluxEdition.set_state(toml, θ)
 	lossfunction(x, y) = Flux.mse(x, y)
 	# println(lossfunction(x, y))
 	println("num. of parameters: $(length(θ))")
-	
-	
+
+
 	nepoch = toml["nepoch"]
-	LuxBPNet.FluxEdition.training!(
+	BPNetTrainer.FluxEdition.training!(
 		θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile=toml["modelparamfile"]
 	)
 end

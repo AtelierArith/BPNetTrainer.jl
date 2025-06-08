@@ -197,7 +197,7 @@ function generate_example_dataset()
     push!(g, f2)
 
     exampledir = joinpath(
-        LuxBPNet.DATASET_ROOT[],
+        BPNetTrainer.DATASET_ROOT[],
         "extracted_files/aenet-example-02-TiO2-Chebyshev/TiO2-xsf",
     )
 

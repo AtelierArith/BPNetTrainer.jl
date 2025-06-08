@@ -1,4 +1,4 @@
-name = "LuxBPNet"
+name = "BPNetTrainer"
 uuid = "44ebcf7b-4b1f-4ed7-9dac-754c8909606b"
 authors = ["Satoshi Terasaki <terasakisatoshi.math@gmail.com>"]
 version = "0.1.0"
