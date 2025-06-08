@@ -167,28 +167,44 @@ function set_numfiles!(g::DataGenerator, numfiles)
 end
 
 function generate_example_dataset()
-	envtypes = ["Ti", "O"]
-	g = DataGenerator(envtypes)
+    envtypes = ["Ti", "O"]
+    g = DataGenerator(envtypes)
 
     atomtype = "Ti"
-    f1 = FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=8.0, radial_N=10, angular_Rc=6.5, angular_N=4)
+    f1 = FingerPrint(
+        atomtype,
+        envtypes;
+        basistype = "Chebyshev",
+        radial_Rc = 8.0,
+        radial_N = 10,
+        angular_Rc = 6.5,
+        angular_N = 4,
+    )
 
     push!(g, f1)
 
     atomtype = "O"
-    f2 = FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=8.0, radial_N=10, angular_Rc=6.5, angular_N=4)
+    f2 = FingerPrint(
+        atomtype,
+        envtypes;
+        basistype = "Chebyshev",
+        radial_Rc = 8.0,
+        radial_N = 10,
+        angular_Rc = 6.5,
+        angular_N = 4,
+    )
 
     push!(g, f2)
 
-	exampledir = joinpath(
-		LuxBPNet.DATASET_ROOT[],
-		"extracted_files/aenet-example-02-TiO2-Chebyshev/TiO2-xsf"
-	)
+    exampledir = joinpath(
+        LuxBPNet.DATASET_ROOT[],
+        "extracted_files/aenet-example-02-TiO2-Chebyshev/TiO2-xsf",
+    )
 
-	xsf_files = filter(readdir(exampledir, join=true)) do x
-		last(splitext(x)) == ".xsf"
-	end
-	adddata!(g, xsf_files)
-	set_numfiles!(g, 1000)
-	make_descriptor(g)
+    xsf_files = filter(readdir(exampledir, join = true)) do x
+        last(splitext(x)) == ".xsf"
+    end
+    adddata!(g, xsf_files)
+    set_numfiles!(g, 1000)
+    make_descriptor(g)
 end

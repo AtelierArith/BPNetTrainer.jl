@@ -129,7 +129,10 @@ function BPDataset(tomlpath::AbstractString)
 
         #println(readline(fp))
 
-        fingerprints[itype] = FingerPrint(itype, description, atomtype,
+        fingerprints[itype] = FingerPrint(
+            itype,
+            description,
+            atomtype,
             nenv,
             envtypes,
             rc_min,
@@ -144,7 +147,7 @@ function BPDataset(tomlpath::AbstractString)
             sfval_min,
             sfval_max,
             sfval_avg,
-            sfval_cov
+            sfval_cov,
         )
         #error("dd")
     end
@@ -167,7 +170,8 @@ function BPDataset(tomlpath::AbstractString)
     fingerprintstuple = NamedTuple{keys}(fingerprints)
 
 
-    fingerprint_parameters_set = Vector{Vector{FingerPrintParams}}(undef, length(type_names))
+    fingerprint_parameters_set =
+        Vector{Vector{FingerPrintParams}}(undef, length(type_names))
     if data["numbasiskinds"] != 1
         for itype = 1:length(type_names)
             fingerprint_i = getfield(fingerprintstuple, keys[itype])
@@ -178,27 +182,53 @@ function BPDataset(tomlpath::AbstractString)
         for itype = 1:length(type_names)
             fingerprint_i = getfield(fingerprintstuple, keys[itype])
             inputdim = fingerprint_i.nsf
-            fingerprint_parameters_set[itype] = get_singlefingerprints_info(fingerprint_i, inputdim)
+            fingerprint_parameters_set[itype] =
+                get_singlefingerprints_info(fingerprint_i, inputdim)
         end
     end
 
 
     numbasiskinds = data["numbasiskinds"]
     if numbasiskinds == 1
-        num_of_structs2 = writefulldata_to_jld2(fp, headerposision, num_of_structs, joinpath(d, filename),
-            type_names, E_shift, E_scale, datafilenames, fingerprintstuple, data["normalize"]
+        num_of_structs2 = writefulldata_to_jld2(
+            fp,
+            headerposision,
+            num_of_structs,
+            joinpath(d, filename),
+            type_names,
+            E_shift,
+            E_scale,
+            datafilenames,
+            fingerprintstuple,
+            data["normalize"],
         )
         num_of_structs = num_of_structs2
     else
-        num_of_structs2 = writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, joinpath(d, filename),
-            type_names, E_shift, E_scale, datafilenames, fingerprintstuple
+        num_of_structs2 = writefulldata_to_jld2_multi(
+            data,
+            fp,
+            headerposision,
+            num_of_structs,
+            joinpath(d, filename),
+            type_names,
+            E_shift,
+            E_scale,
+            datafilenames,
+            fingerprintstuple,
         )
         num_of_structs = num_of_structs2
     end
 
     dataffile = jldopen(joinpath(d, fileheader * ".jld2"), "r")
 
-    dataset = BPDataset{keys,num_of_types,num_of_structs,typeof(fp),typeof(dataffile),numbasiskinds}(
+    dataset = BPDataset{
+        keys,
+        num_of_types,
+        num_of_structs,
+        typeof(fp),
+        typeof(dataffile),
+        numbasiskinds,
+    }(
         filename,
         num_of_types, #::Int64
         num_of_structs, #::Int64
@@ -219,7 +249,7 @@ function BPDataset(tomlpath::AbstractString)
         datafilenames,
         fileused,
         dataffile,
-        fingerprint_parameters_set
+        fingerprint_parameters_set,
     )
 
     println("------------------------------------------------")
@@ -231,7 +261,11 @@ function BPDataset(tomlpath::AbstractString)
 
 end
 
-function get_coefficients(dataset::BPDataset{keys,num_of_types,num_of_structs}, istruct::Integer, fp) where {keys,num_of_types,num_of_structs}
+function get_coefficients(
+    dataset::BPDataset{keys,num_of_types,num_of_structs},
+    istruct::Integer,
+    fp,
+) where {keys,num_of_types,num_of_structs}
     #@assert istruct <= num_of_structs "size of the dataset $(num_of_structs) is smaller than the index $istruct"
     dataset.fileused[istruct] = true
     energy = 0.0
@@ -271,7 +305,7 @@ function get_unusedindex_arr(dataset::BPDataset, arr)
         #return 0
     else
         zero_index = findnext(==(0), arr, 1)
-        for i in 2:rand(1:count_zeros)
+        for i = 2:rand(1:count_zeros)
             zero_index = findnext(==(0), arr, zero_index + 1)
         end
         s = ifelse(zero_index == nothing, 0, zero_index)

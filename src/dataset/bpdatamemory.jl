@@ -6,7 +6,10 @@ struct BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
     natoms_all::TNA
 end
 
-function BPDataMemory(dataset::BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds}, filename) where {keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds}
+function BPDataMemory(
+    dataset::BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds},
+    filename,
+) where {keys,num_of_types,num_of_structs,Tfp,Td,numbasiskinds}
     d = DATASET_ROOT[]
     fp = jldopen(joinpath(d, filename), "r")
     num = Int(fp["num_of_structs"])
@@ -28,28 +31,38 @@ function BPDataMemory(dataset::BPDataset{keys,num_of_types,num_of_structs,Tfp,Td
     TC = typeof(coefficients_all)
     TNA = typeof(natoms_all)
 
-    return BPDataMemory{keys,num_of_types,num,numbasiskinds,TE,TC,TNA}(dataset.E_scale, dataset.E_shift,
+    return BPDataMemory{keys,num_of_types,num,numbasiskinds,TE,TC,TNA}(
+        dataset.E_scale,
+        dataset.E_shift,
         energy_all,
         coefficients_all,
-        natoms_all
+        natoms_all,
     )
 end
 
-Base.length(dataset::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA} = num_of_structs
+Base.length(
+    dataset::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA},
+) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA} = num_of_structs
 
 
 function Base.getindex(dataset::BPDataMemory, i::Int)
     return dataset[i:i]
 end
 
-function get_coeff(data::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA},
-    istruct) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
-    return data.energy_all[istruct], data.coefficients_all[istruct], data.natoms_all[istruct]#energy, coefficients, natoms
+function get_coeff(
+    data::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA},
+    istruct,
+) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
+    return data.energy_all[istruct],
+    data.coefficients_all[istruct],
+    data.natoms_all[istruct]#energy, coefficients, natoms
 end
 
 
-function Base.getindex(dataset::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA},
-    I::AbstractVector) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
+function Base.getindex(
+    dataset::BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA},
+    I::AbstractVector,
+) where {keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
     num = length(I)
 
     coefficients_batch = Vector{Vector{Matrix{Float64}}}(undef, num_of_types)
@@ -124,29 +137,40 @@ function Base.getindex(dataset::BPDataMemory{keys,num_of_types,num_of_structs,nu
         indices_i = structindices[itype]#,#view(structindices[itype], 1:num)
         #structindicesmatrix[itype] = Matrix(sparse(indices_i, 1:length(indices_i), 1, num, num_atoms_itype)')
         #structindicesmatrix[itype] =sparse(indices_i, 1:length(indices_i), 1, num, num_atoms_itype)'
-        structindicesmatrix[itype] = Matrix(sparse(indices_i, 1:length(indices_i), 1, num, num_atoms_itype)')
+        structindicesmatrix[itype] =
+            Matrix(sparse(indices_i, 1:length(indices_i), 1, num, num_atoms_itype)')
 
         #structindicesmatrix[itype] = sparse(indices_i, 1:length(indices_i), 1, num, num_atoms_itype)
     end
 
-    data = NamedTuple{keys,NTuple{num_of_types,Vector{Matrix{Float64}}}}(Tuple(coefficients_batch))
+    data = NamedTuple{keys,NTuple{num_of_types,Vector{Matrix{Float64}}}}(
+        Tuple(coefficients_batch),
+    )
     #labels = NamedTuple{keys,NTuple{num_of_types,SparseMatrixCSC{Int64,Int64}}}(Tuple(structindicesmatrix))
-    labels = NamedTuple{keys,NTuple{num_of_types,Matrix{Float64}}}(Tuple(structindicesmatrix))
+    labels =
+        NamedTuple{keys,NTuple{num_of_types,Matrix{Float64}}}(Tuple(structindicesmatrix))
     #labels = NamedTuple{keys,NTuple{num_of_types,Matrix{Bool}}}(Tuple(structindicesmatrix))
 
     #println(I, "\t", typeof(coefficients_batch[1]))
-    xbatch = @NamedTuple{data::typeof(coefficients_batch[1]), labels::typeof(structindicesmatrix[1])}[]
+    xbatch = @NamedTuple{
+        data::typeof(coefficients_batch[1]),
+        labels::typeof(structindicesmatrix[1]),
+    }[]
     #xbatch = Tuple{typeof(coefficients_batch[1]),typeof(structindicesmatrix[1])}[]
     #return coefficients_batch,structindicesmatrix,energy_batch,num,totalnumatom
 
 
     for itype = 1:num_of_types
-        push!(xbatch, (data=coefficients_batch[itype], labels=structindicesmatrix[itype]))
+        push!(
+            xbatch,
+            (data = coefficients_batch[itype], labels = structindicesmatrix[itype]),
+        )
     end
     return xbatch, energy_batch, num, totalnumatom
 
     #return (data=data, labels=labels), energy_batch, num, totalnumatom
 
-    return (data=data, labels=labels, numdata=num, totalnumatom=totalnumatom), energy_batch
+    return (data = data, labels = labels, numdata = num, totalnumatom = totalnumatom),
+    energy_batch
 
 end

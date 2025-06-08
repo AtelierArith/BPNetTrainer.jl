@@ -21,8 +21,18 @@ function write_data_to_jld2(dataset::BPDataset, I::AbstractVector, filename)
 end
 
 #function writefulldata_to_jld2(dataset::BPDataset)
-function writefulldata_to_jld2(fp, headerposision, num_of_structs, fileheader,
-    type_names, E_shift, E_scale, datafilenames, fingerprints, normalized)
+function writefulldata_to_jld2(
+    fp,
+    headerposision,
+    num_of_structs,
+    fileheader,
+    type_names,
+    E_shift,
+    E_scale,
+    datafilenames,
+    fingerprints,
+    normalized,
+)
     #seek(dataset.fp, dataset.headerposision)
     seek(fp, headerposision)
     #num_of_structs = dataset.num_of_structs
@@ -110,7 +120,8 @@ function writefulldata_to_jld2(fp, headerposision, num_of_structs, fileheader,
                 #scales = 1 ./ s
 
                 #index_itype[itype] += 1
-                coefficients[itype][:, index_itype[itype]] = scales .* (coefficients_atoms[iatom] .- shifts)
+                coefficients[itype][:, index_itype[itype]] =
+                    scales .* (coefficients_atoms[iatom] .- shifts)
             else
                 coefficients[itype][:, index_itype[itype]] = coefficients_atoms[iatom][:]
             end
@@ -148,8 +159,18 @@ function writefulldata_to_jld2(fp, headerposision, num_of_structs, fileheader,
 end
 
 
-function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, fileheader,
-    type_names, E_shift, E_scale, datafilenames, fingerprints)
+function writefulldata_to_jld2_multi(
+    data,
+    fp,
+    headerposision,
+    num_of_structs,
+    fileheader,
+    type_names,
+    E_shift,
+    E_scale,
+    datafilenames,
+    fingerprints,
+)
     #seek(dataset.fp, dataset.headerposision)
     seek(fp, headerposision)
     #num_of_structs = dataset.num_of_structs
@@ -165,7 +186,8 @@ function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, f
     println("The network output energy will be normalized to the interval [-1,1].")
     println("  Energy scaling factor: f = ", E_scale)
     println("  Atomic energy shift  : s = ", E_shift)
-    fingerprint_parameters_set = Vector{Vector{FingerPrintParams}}(undef, length(type_names))
+    fingerprint_parameters_set =
+        Vector{Vector{FingerPrintParams}}(undef, length(type_names))
 
     for itype = 1:length(type_names)
         fingerprint = getfield(fingerprints, keys[itype])
@@ -257,7 +279,9 @@ function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, f
                 if data_itype["normalize"][ikind] == true
                     shifts = fingerprint.sfval_avg[startindex:endindex]
                     #shifts = dataset.fingerprints[itype].sfval_avg
-                    s = sqrt.(fingerprint.sfval_cov[startindex:endindex] .- shifts .* shifts)
+                    s = sqrt.(
+                        fingerprint.sfval_cov[startindex:endindex] .- shifts .* shifts,
+                    )
                     #println("$iatom,$s")
                     scales = zero(s)
                     for k = 1:length(s)
@@ -267,9 +291,11 @@ function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, f
                             scales[k] = 1
                         end
                     end
-                    coefficients[itype][ikind][:, index_itype[itype]] = scales .* (coefficients_atoms[iatom][startindex:endindex] .- shifts)
+                    coefficients[itype][ikind][:, index_itype[itype]] =
+                        scales .* (coefficients_atoms[iatom][startindex:endindex] .- shifts)
                 else
-                    coefficients[itype][ikind][:, index_itype[itype]] = coefficients_atoms[iatom][startindex:endindex]
+                    coefficients[itype][ikind][:, index_itype[itype]] =
+                        coefficients_atoms[iatom][startindex:endindex]
                 end
                 #display(coefficients[itype][ikind][:, index_itype[itype]])
             end
@@ -313,13 +339,18 @@ function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, f
     return istruc2
 end
 
-function make_train_and_test_jld2(dataset::BPDataset, filename_train, filename_test; ratio=0.1)
+function make_train_and_test_jld2(
+    dataset::BPDataset,
+    filename_train,
+    filename_test;
+    ratio = 0.1,
+)
     numsize = length(dataset)
     numtest = Int(ceil(numsize * ratio))
     numtrain = numsize - numtest
     randomindices = shuffle(1:numsize)
     trainindices = randomindices[1:numtrain]
-    testindices = randomindices[numtrain+1:end]
+    testindices = randomindices[(numtrain+1):end]
 
     write_data_to_jld2(dataset, trainindices, joinpath(DATASET_ROOT[], filename_train))
     write_data_to_jld2(dataset, testindices, joinpath(DATASET_ROOT[], filename_test))
