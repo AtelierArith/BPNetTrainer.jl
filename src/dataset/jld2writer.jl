@@ -165,7 +165,7 @@ function writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, f
     println("The network output energy will be normalized to the interval [-1,1].")
     println("  Energy scaling factor: f = ", E_scale)
     println("  Atomic energy shift  : s = ", E_shift)
-    fingerprint_parameters_set = Vector{Vector{FingerPrint_params}}(undef, length(type_names))
+    fingerprint_parameters_set = Vector{Vector{FingerPrintParams}}(undef, length(type_names))
 
     for itype = 1:length(type_names)
         fingerprint = getfield(fingerprints, keys[itype])

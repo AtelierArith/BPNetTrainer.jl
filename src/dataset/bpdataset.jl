@@ -19,7 +19,7 @@ struct BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,num_kinds}
     datafilenames::Vector{String}
     fileused::Vector{Bool}
     datafile::Td
-    fingerprint_parameters::Vector{Vector{FingerPrint_params}}
+    fingerprint_parameters::Vector{Vector{FingerPrintParams}}
 end
 
 function get_inputdim(dataset::BPDataset, name::String)
@@ -167,7 +167,7 @@ function BPDataset(tomlpath::AbstractString)
     fingerprintstuple = NamedTuple{keys}(fingerprints)
 
 
-    fingerprint_parameters_set = Vector{Vector{FingerPrint_params}}(undef, length(type_names))
+    fingerprint_parameters_set = Vector{Vector{FingerPrintParams}}(undef, length(type_names))
     if data["numbasiskinds"] != 1
         for itype = 1:length(type_names)
             fingerprint_i = getfield(fingerprintstuple, keys[itype])

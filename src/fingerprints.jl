@@ -111,7 +111,7 @@ function chebyshevparam(nenv, kwargs)
 end
 
 
-struct FingerPrint_params
+struct FingerPrintParams
     basistype::String
     num_kinds::Int64
     numparams::Int64
@@ -123,14 +123,14 @@ end
 
 
 function get_singlefingerprints_info(fingerprint::FingerPrint, inputdim)
-    fingerprint_parameters_set = Vector{FingerPrint_params}(undef, 1)
+    fingerprint_parameters_set = Vector{FingerPrintParams}(undef, 1)
 
     fingerprint_parameters = fingerprint.sfparam[:, 1]
     num_kinds = 1
     startindex = 1
     endindex = length(fingerprint.sfparam[:, 1])
     numparams = inputdim
-    fingerprint_parameters_set[1] = FingerPrint_params(
+    fingerprint_parameters_set[1] = FingerPrintParams(
         "any single basis",
         num_kinds,
         numparams,
@@ -148,7 +148,7 @@ function get_multifingerprints_info(fingerprint::FingerPrint)
     fingerprint_parameters = fingerprint.sfparam[:, 1]
     num_kinds = Int(fingerprint_parameters[2])
     #display(fingerprint.sfparam[:, :])
-    fingerprint_parameters_set = Vector{FingerPrint_params}(undef, num_kinds)
+    fingerprint_parameters_set = Vector{FingerPrintParams}(undef, num_kinds)
 
     #println(num_kinds)
     startindex = 1
@@ -167,7 +167,7 @@ function get_multifingerprints_info(fingerprint::FingerPrint)
         params = fingerprint_parameters[(istart+2):(istart+1+NUM_MAX_FINGERPRINT_PARAMS)]
         endindex = startindex + numparams_i - 1
 
-        fingerprint_parameters_set[ikind] = FingerPrint_params(
+        fingerprint_parameters_set[ikind] = FingerPrintParams(
             basistype,
             num_kinds,
             numparams_i,
