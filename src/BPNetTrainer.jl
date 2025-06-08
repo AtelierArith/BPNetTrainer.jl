@@ -27,6 +27,7 @@ include("dataset/bpdataset.jl")
 include("dataset/jld2writer.jl")
 include("dataset/bpdatamemory.jl")
 include("flux/FluxEdition.jl")
+include("lux/LuxEdition.jl")
 
 function __init__()
     global DATASET_ROOT
