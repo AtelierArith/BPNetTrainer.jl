@@ -2,9 +2,9 @@ function download_dataset()
     url = "http://ann.atomistic.net/files/aenet-example-02-TiO2-Chebyshev.tar.bz2"
     bz2name = "aenet-example-02-TiO2-Chebyshev.tar.bz2"
     tarname = first(splitext(bz2name))
-    bz2path = joinpath(DATASET_DIR[], bz2name)
-    tarpath = joinpath(DATASET_DIR[], tarname)
-    extractpath = joinpath(DATASET_DIR[], "extracted_files")
+    bz2path = joinpath(DATASET_ROOT[], bz2name)
+    tarpath = joinpath(DATASET_ROOT[], tarname)
+    extractpath = joinpath(DATASET_ROOT[], "extracted_files")
     if !isfile(bz2path)
         Downloads.download(url, bz2path)
         open(bz2path) do inp

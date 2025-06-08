@@ -40,10 +40,11 @@ function reload_data!(dataset::BPDataset)
 end
 
 function BPDataset(tomlpath::AbstractString)
+    d = DATASET_ROOT[]
     data = TOML.parsefile(tomlpath)
     display(data)
     filename = data["trainfile"]
-    fp = open(filename, "r")
+    fp = open(joinpath(d, filename), "r")
     num_of_types = parse(Int64, split(readline(fp))[1])
     num_of_structs = parse(Int64, split(readline(fp))[1])
     type_names = Vector{String}(undef, num_of_types)
@@ -184,18 +185,18 @@ function BPDataset(tomlpath::AbstractString)
 
     numbasiskinds = data["numbasiskinds"]
     if numbasiskinds == 1
-        num_of_structs2 = writefulldata_to_jld2(fp, headerposision, num_of_structs, filename,
+        num_of_structs2 = writefulldata_to_jld2(fp, headerposision, num_of_structs, joinpath(d, filename),
             type_names, E_shift, E_scale, datafilenames, fingerprintstuple, data["normalize"]
         )
         num_of_structs = num_of_structs2
     else
-        num_of_structs2 = writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, filename,
+        num_of_structs2 = writefulldata_to_jld2_multi(data, fp, headerposision, num_of_structs, joinpath(d, filename),
             type_names, E_shift, E_scale, datafilenames, fingerprintstuple
         )
         num_of_structs = num_of_structs2
     end
 
-    dataffile = jldopen(fileheader * ".jld2", "r")
+    dataffile = jldopen(joinpath(d, fileheader * ".jld2"), "r")
 
     dataset = BPDataset{keys,num_of_types,num_of_structs,typeof(fp),typeof(dataffile),numbasiskinds}(
         filename,

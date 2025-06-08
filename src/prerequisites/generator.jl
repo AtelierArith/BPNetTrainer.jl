@@ -54,33 +54,36 @@ end
 
 function bpnet_jll_generatefn(filename)
     exe = BPNET_jll.generate()
-    run(`$exe $filename`)
-    #BPNET_jll.generate() do exe
-    #    run(`$exe $filename`)
-    #end
+    old = pwd()
+    cd(DATASET_ROOT[])
+    run(`$(exe) $(filename)`)
+    cd(old)
+    nothing
 end
 
 function make_descriptor(g::DataGenerator)
-    if isfile(g.outputname)
+    d = DATASET_ROOT[]
+    if isfile(joinpath(d, g.outputname))
         @warn "$(g.outputname) exists. This is removed"
-        rm(g.outputname)
+        rm(joinpath(d, g.outputname))
     end
 
     filename = make_generatein(g)
     make_fingerprintfile(g)
-    bpnet_jll_generatefn(filename)
-    outputfile = g.outputname * ".ascii"
+    println(joinpath(d, filename))
+    bpnet_jll_generatefn(joinpath(d, filename))
+    outputfile = joinpath(d, g.outputname * ".ascii")
     g.isgenerated = true
     return outputfile
 end
 
 function make_fingerprintfile(g::DataGenerator)
+    d = DATASET_ROOT[]
     for ifile = 1:g.numkinds
         filename = g.fingerprint_names[ifile]
         fingerprint = g.fingerprints[ifile]
         description = fingerprint.description
-
-        fp = open(filename, "w")
+        fp = open(joinpath(d, filename), "w")
         println(fp, "DESCR")
         println(fp, description)
         println(fp, "END DESCR")
@@ -119,7 +122,8 @@ function print_fingerprintinfo(fp, fingerprint)
 end
 
 function make_generatein(g::DataGenerator; filename = "generate.in")
-    fp = open(filename, "w")
+    d = DATASET_ROOT[]
+    fp = open(joinpath(d, filename), "w")
     println(fp, "OUTPUT $(g.outputname)")
     println(fp, "\t")
     println(fp, "TYPES")
@@ -160,4 +164,31 @@ end
 
 function set_numfiles!(g::DataGenerator, numfiles)
     g.numfiles = numfiles
+end
+
+function generate_example_dataset()
+	envtypes = ["Ti", "O"]
+	g = DataGenerator(envtypes)
+
+    atomtype = "Ti"
+    f1 = FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=8.0, radial_N=10, angular_Rc=6.5, angular_N=4)
+
+    push!(g, f1)
+
+    atomtype = "O"
+    f2 = FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=8.0, radial_N=10, angular_Rc=6.5, angular_N=4)
+
+    push!(g, f2)
+
+	exampledir = joinpath(
+		LuxBPNet.DATASET_ROOT[],
+		"extracted_files/aenet-example-02-TiO2-Chebyshev/TiO2-xsf"
+	)
+
+	xsf_files = filter(readdir(exampledir, join=true)) do x
+		last(splitext(x)) == ".xsf"
+	end
+	adddata!(g, xsf_files)
+	set_numfiles!(g, 1000)
+	make_descriptor(g)
 end
