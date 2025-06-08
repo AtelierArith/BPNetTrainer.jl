@@ -8,7 +8,7 @@ using InteractiveUtils
 begin
 	using Pkg
 	using Revise
-	Pkg.activate(@__DIR__)
+	Pkg.activate(dirname(dirname(@__DIR__)))
 	using LuxBPNet
 	using LuxBPNet: download_dataset, generate_example_dataset
 	using LuxBPNet: make_train_and_test_jld2
@@ -23,7 +23,7 @@ using MLUtils: DataLoader
 begin
 	download_dataset()
 	generate_example_dataset()
-	tomlpath = joinpath("configs", "test_input.toml")
+	tomlpath = joinpath(pkgdir(LuxBPNet), "configs", "test_input.toml")
 	bpdata, toml = BPDataset(tomlpath)
 end
 
