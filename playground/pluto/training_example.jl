@@ -18,7 +18,10 @@ begin
 end
 
 # ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
-using Flux
+begin
+	using Flux
+	using MLUtils
+end
 
 # ╔═╡ b1745dc3-b967-4018-9054-32412e936d3c
 begin
@@ -48,6 +51,35 @@ x, y = traindata[1]
 # ╔═╡ 2adb7aeb-16ee-499d-a468-1a4c90ba5d8a
 model(x)
 
+# ╔═╡ 389ae298-8eb8-4531-9b24-76681deff0a3
+begin
+	numbatch = toml["numbatch"]
+	train_loader = DataLoader(traindata; batchsize=numbatch)
+	println("num. of training data $(length(traindata))")
+	
+	testdata = BPDataMemory(bpdata, filename_test)
+	test_loader = DataLoader(testdata; batchsize=1)
+	println("num. of testing data $(length(testdata))")
+end
+
+# ╔═╡ efc015ed-5617-4550-b5cc-d978f8e7a39d
+begin
+	θ, re = Flux.destructure(model)
+	#grad = Flux.gradient(θ -> sum(re(θ)(x)), θ)
+	#display(grad[1])
+	
+	state = LuxBPNet.set_state(toml, θ)
+	lossfunction(x, y) = Flux.mse(x, y)
+	# println(lossfunction(x, y))
+	println("num. of parameters: $(length(θ))")
+	
+	
+	nepoch = toml["nepoch"]
+	LuxBPNet.training!(
+		θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile=toml["modelparamfile"]
+	)
+end
+
 # ╔═╡ Cell order:
 # ╠═640037f4-43f8-11f0-1b23-910aaead95b2
 # ╠═799f9576-7cbd-4a0b-9136-807b0f55f5d2
@@ -57,3 +89,5 @@ model(x)
 # ╠═4a5acf2e-8d94-4ae5-b786-6acd9cd417e1
 # ╠═7c1ad009-6873-4670-8232-9574db0eb069
 # ╠═2adb7aeb-16ee-499d-a468-1a4c90ba5d8a
+# ╠═389ae298-8eb8-4531-9b24-76681deff0a3
+# ╠═efc015ed-5617-4550-b5cc-d978f8e7a39d

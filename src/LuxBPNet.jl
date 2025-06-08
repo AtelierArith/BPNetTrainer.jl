@@ -10,7 +10,7 @@ using Tar: Tar
 using CodecBzip2: CodecBzip2
 using TranscodingStreams: TranscodingStreams
 using Scratch: @get_scratch!
-using JLD2: JLD2, jldopen
+using JLD2: JLD2, jldopen, @save
 using Flux
 
 const DATASET_ROOT = Ref{String}()
@@ -26,7 +26,8 @@ include("prerequisites/downloader.jl")
 include("dataset/bpdataset.jl")
 include("dataset/jld2writer.jl")
 include("dataset/bpdatamemory.jl")
-include("model.jl")
+include("flux/model.jl")
+include("flux/training.jl")
 
 function __init__()
     global DATASET_ROOT
