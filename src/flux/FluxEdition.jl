@@ -1,4 +1,4 @@
-module FluxModelTraining
+module FluxEdition
 
 using Flux
 using JLD2: @save

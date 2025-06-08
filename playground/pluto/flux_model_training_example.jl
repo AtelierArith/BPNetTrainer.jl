@@ -14,7 +14,6 @@ begin
     using LuxBPNet: make_train_and_test_jld2
     using LuxBPNet: adddata!, set_numfiles!, make_descriptor
     using LuxBPNet: FingerPrint, DataGenerator, BPDataset, BPDataMemory
-	using LuxBPNet: FluxBPNet
 end
 
 # ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
@@ -43,7 +42,7 @@ end
 traindata = BPDataMemory(bpdata, filename_train)
 
 # ╔═╡ 4a5acf2e-8d94-4ae5-b786-6acd9cd417e1
-model = FluxBPNet(toml) |> Flux.f64
+model = LuxBPNet.FluxEdition.FluxBPNet(toml) |> Flux.f64
 
 # ╔═╡ 7c1ad009-6873-4670-8232-9574db0eb069
 x, y = traindata[1]
@@ -68,14 +67,14 @@ begin
 	#grad = Flux.gradient(θ -> sum(re(θ)(x)), θ)
 	#display(grad[1])
 	
-	state = LuxBPNet.set_state(toml, θ)
+	state = LuxBPNet.FluxEdition.set_state(toml, θ)
 	lossfunction(x, y) = Flux.mse(x, y)
 	# println(lossfunction(x, y))
 	println("num. of parameters: $(length(θ))")
 	
 	
 	nepoch = toml["nepoch"]
-	LuxBPNet.training!(
+	LuxBPNet.FluxEdition.training!(
 		θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile=toml["modelparamfile"]
 	)
 end

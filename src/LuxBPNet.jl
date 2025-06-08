@@ -26,7 +26,7 @@ include("prerequisites/downloader.jl")
 include("dataset/bpdataset.jl")
 include("dataset/jld2writer.jl")
 include("dataset/bpdatamemory.jl")
-include("flux/FluxModelTraining.jl")
+include("flux/FluxEdition.jl")
 
 function __init__()
     global DATASET_ROOT
