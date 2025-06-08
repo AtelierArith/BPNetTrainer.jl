@@ -129,11 +129,8 @@ x
 let
 	rng = Xoshiro(1234)
 	ps, st = Lux.setup(rng, model)
-	Lux.apply(model, x, ps, st)
+	Lux.apply(model, [(data = Lux.f32(e.data), labels=Lux.f32(e.labels)) for e in x], ps, st)
 end
-
-# ╔═╡ e08c40c2-112f-4ebc-b0b0-a3b87e5700be
-x
 
 # ╔═╡ Cell order:
 # ╠═640037f4-43f8-11f0-1b23-910aaead95b2
@@ -146,4 +143,3 @@ x
 # ╠═7c1ad009-6873-4670-8232-9574db0eb069
 # ╠═0a2ea050-b4e6-499c-aaeb-b4cded9e3fca
 # ╠═ef934b83-c651-4b97-ae6f-f8def737f28b
-# ╠═e08c40c2-112f-4ebc-b0b0-a3b87e5700be
