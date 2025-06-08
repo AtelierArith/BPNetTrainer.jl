@@ -6,8 +6,8 @@ function apply_model(m, x)
     m(x)
 end
 
-function apply_bpmultimodel(ci, xi)
-    ei = sum(map(apply_model, ci, xi.data))
+function apply_bpmultimodel(chains, xi)
+    ei = sum(map(apply_model, chains, xi.data))
     return ei * xi.labels
 end
 
