@@ -58,10 +58,10 @@ function LuxBPNet(toml::Dict{String,Any}, fingerprint_params)
             c = make_dense_chain(inputdim, hidden_dims, activations)
             push!(itype_chains, c)
         end
-        LayerAcceptsInputWithDataAndLabels(Parallel(+, itype_chains...))
+        # LayerAcceptsInputWithDataAndLabels(Parallel(+, itype_chains...))
+        Parallel(*, Parallel(+, itype_chains...), NoOpLayer())
     end
-    layers = Parallel(+, chains...)
-    LuxBPNet(layers)
+    LuxBPNet(Parallel(+, chains...))
 end
 
 function (m::LuxBPNet)(x, ps, st::NamedTuple)

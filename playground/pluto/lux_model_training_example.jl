@@ -9,6 +9,14 @@ begin
     using Pkg
     using Revise
     Pkg.activate(dirname(dirname(@__DIR__)))
+
+	using Random
+	using Statistics
+	using Lux
+	using MLUtils
+	using Optimisers
+	using Enzyme
+	
     using BPNetTrainer
     using BPNetTrainer: download_dataset, generate_example_dataset
     using BPNetTrainer: make_train_and_test_jld2
@@ -17,14 +25,7 @@ begin
 end
 
 # ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
-begin
-	using Random
-	using Statistics
-	using Lux
-	using MLUtils
-	using Optimisers
-	using Enzyme
-end
+
 
 # ╔═╡ b1745dc3-b967-4018-9054-32412e936d3c
 begin
@@ -50,8 +51,16 @@ let
 	)
 	x, y = traindata[1]
 	rng = Xoshiro(1234)
+	device = cpu_device()
 	ps, st = Lux.setup(rng, model)
-	Lux.apply(model, [(data = Lux.f32(e.data), labels=Lux.f32(e.labels)) for e in x], ps, st)
+	x_dev = [
+					(
+						Tuple(device(Lux.f32(e.data))), 
+						 device(Lux.f32(e.labels))
+					)
+					 for e in x
+	]
+	Lux.apply(model, x_dev, ps, st)
 end
 
 # ╔═╡ 823081d9-aa12-4f58-a953-2bd2d5bba28d
@@ -97,16 +106,25 @@ begin
 	
 			train_losses = []
 			for (i, (x, y)) in enumerate(train_loader)
+				#=
 				x_dev = [
 					(; data = device(Lux.f32(e.data)), 
 					   labels = device(Lux.f32(e.labels))
 					) for e in x
 				]
+				=#
+				x_dev = [
+					(
+						Tuple(device(Lux.f32(e.data))), 
+						 device(Lux.f32(e.labels))
+					)
+					 for e in x
+				]
 				y_dev = y |> Lux.f32 |> device
 	
 				ŷ, _ = Lux.apply(model, x_dev, ps, st)
 				_, loss, _, tstate = Lux.Training.single_train_step!(
-	                AutoEnzyme(), lossfn, (x_dev, y_dev), tstate
+	                AutoZygote(), lossfn, (x_dev, y_dev), tstate
 	            )
 				push!(train_losses, cpu_device()(loss))
 			end
@@ -115,9 +133,11 @@ begin
 			st = Lux.testmode(st)
 			test_losses = map(enumerate(test_loader)) do (i, (x, y))
 				x_dev = [
-					(; data = device(Lux.f32(e.data)), 
-					   labels = device(Lux.f32(e.labels))
-					) for e in x
+					(
+						Tuple(device(Lux.f32(e.data))), 
+						 device(Lux.f32(e.labels))
+					)
+					 for e in x
 				]
 				y_dev = y |> Lux.f32 |> device
 	
