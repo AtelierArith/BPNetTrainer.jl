@@ -102,6 +102,7 @@ begin
 	
 		for epoch in 1:100
 			@show epoch
+			println("Training phase")
 			st = Lux.trainmode(st)
 	
 			train_losses = []
@@ -122,7 +123,7 @@ begin
 				]
 				y_dev = y |> Lux.f32 |> device
 	
-				ŷ, _ = Lux.apply(model, x_dev, ps, st)
+				# ŷ, _ = Lux.apply(model, x_dev, ps, st)
 				_, loss, _, tstate = Lux.Training.single_train_step!(
 	                AutoZygote(), lossfn, (x_dev, y_dev), tstate
 	            )
@@ -131,7 +132,8 @@ begin
 			println("train loss: ", sum(train_losses) / length(train_loader))
 	
 			st = Lux.testmode(st)
-			
+
+			println("Validation phase")
 			test_losses = []
 				
 			for (i, (x, y)) in enumerate(test_loader)
