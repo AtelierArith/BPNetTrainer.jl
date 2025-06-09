@@ -100,7 +100,8 @@ begin
 		lossfn = OnlyFollowsLossFn(Lux.MSELoss())
 		nepoch = toml["nepoch"]
 	
-		for e in 1:100
+		for epoch in 1:100
+			@show epoch
 			st = Lux.trainmode(st)
 	
 			train_losses = []
