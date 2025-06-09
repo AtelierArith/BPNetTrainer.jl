@@ -9,7 +9,8 @@ begin
     using Pkg
     using Revise
     Pkg.activate(dirname(dirname(@__DIR__)))
-
+	Pkg.instantiate()
+	
 	using Random
 	using Statistics
 	using Lux
@@ -132,7 +133,7 @@ begin
 			
 			test_losses = []
 				
-			map(enumerate(test_loader)) do (i, (x, y))
+			for (i, (x, y)) in enumerate(test_loader)
 				x_dev = [
 					(
 						Tuple(device(Lux.f32(e.data))), 
