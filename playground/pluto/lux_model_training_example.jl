@@ -16,6 +16,7 @@ begin
 	using MLUtils
 	using Optimisers
 	using Enzyme
+	using LuxCUDA
 	
     using BPNetTrainer
     using BPNetTrainer: download_dataset, generate_example_dataset
@@ -23,9 +24,6 @@ begin
     using BPNetTrainer: adddata!, set_numfiles!, make_descriptor
     using BPNetTrainer: FingerPrint, DataGenerator, BPDataset, BPDataMemory
 end
-
-# ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
-
 
 # ╔═╡ b1745dc3-b967-4018-9054-32412e936d3c
 begin
@@ -131,7 +129,10 @@ begin
 			println("train loss: ", sum(train_losses) / length(train_loader))
 	
 			st = Lux.testmode(st)
-			test_losses = map(enumerate(test_loader)) do (i, (x, y))
+			
+			test_losses = []
+				
+			map(enumerate(test_loader)) do (i, (x, y))
 				x_dev = [
 					(
 						Tuple(device(Lux.f32(e.data))), 
@@ -142,7 +143,8 @@ begin
 				y_dev = y |> Lux.f32 |> device
 	
 				ŷ, _ = Lux.apply(model, x_dev, ps, st)
-				loss = lossfn(ŷ, y) |> cpu_device()
+				loss = lossfn(ŷ, y)
+				push!(test_losses, cpu_device()(loss))
 			end
 				
 			println("test loss: ", sum(test_losses) / length(test_loader))
@@ -154,7 +156,6 @@ end
 
 # ╔═╡ Cell order:
 # ╠═640037f4-43f8-11f0-1b23-910aaead95b2
-# ╠═799f9576-7cbd-4a0b-9136-807b0f55f5d2
 # ╠═b1745dc3-b967-4018-9054-32412e936d3c
 # ╠═be060fa5-c382-4ef6-86a0-bc8ccefb7db1
 # ╠═ef934b83-c651-4b97-ae6f-f8def737f28b
