@@ -147,7 +147,7 @@ begin
 				y_dev = y |> Lux.f32 |> device
 	
 				ŷ, _ = Lux.apply(model, x_dev, ps, st)
-				loss = lossfn(ŷ, y)
+				loss = lossfn(ŷ, y_dev)
 				push!(test_losses, cpu_device()(loss))
 			end
 				
@@ -158,6 +158,9 @@ begin
 	@time luxtraining()
 end
 
+# ╔═╡ 381c35ae-3132-4dfb-8ae8-41061eb08deb
+
+
 # ╔═╡ Cell order:
 # ╠═640037f4-43f8-11f0-1b23-910aaead95b2
 # ╠═b1745dc3-b967-4018-9054-32412e936d3c
@@ -165,3 +168,4 @@ end
 # ╠═ef934b83-c651-4b97-ae6f-f8def737f28b
 # ╠═823081d9-aa12-4f58-a953-2bd2d5bba28d
 # ╠═012a5350-78ff-4717-8884-b5b5319fde2b
+# ╠═381c35ae-3132-4dfb-8ae8-41061eb08deb
