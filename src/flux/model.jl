@@ -1,3 +1,7 @@
+struct FluxBPNet{Chains}
+    chain::Chains
+end
+
 function make_dense_chain(
     inputdim::Int,
     hidden_dims::Vector{Int},
