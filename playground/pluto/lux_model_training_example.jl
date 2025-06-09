@@ -110,7 +110,7 @@ begin
 	            )
 				push!(train_losses, cpu_device()(loss))
 			end
-			@info "train loss" sum(train_losses) / length(train_loader)
+			println("train loss: ", sum(train_losses) / length(train_loader))
 	
 			st = Lux.testmode(st)
 			test_losses = map(enumerate(test_loader)) do (i, (x, y))
@@ -125,11 +125,11 @@ begin
 				loss = lossfn(ŷ, y) |> cpu_device()
 			end
 				
-			@info "test loss" sum(test_losses) / length(test_loader)
+			println("test loss: ", sum(test_losses) / length(test_loader))
 		end
 	end
 	
-	luxtraining()
+	@time luxtraining()
 end
 
 # ╔═╡ Cell order:
