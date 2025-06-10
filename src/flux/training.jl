@@ -81,9 +81,18 @@ function testprocess(θ::Vector{Float64}, re, state, test_loader, lossfunction)
     return loss, rmse, sse
 end
 
-function training!(θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile="tempmodelparams_flux.jld2")
+function training!(
+    θ,
+    re,
+    state,
+    train_loader,
+    test_loader,
+    lossfunction,
+    nepoch;
+    modelparamfile = "tempmodelparams_flux.jld2",
+)
     #modelparamfile = "tempmodelparams_flux.jld2"
-    for epoch in 1:nepoch
+    for epoch = 1:nepoch
         loss_train = trainprocess!(θ, re, state, train_loader, lossfunction)
         #=
         for (x,y,num,totalnumatom) in train_loader
@@ -112,7 +121,9 @@ function training!(θ, re, state, train_loader, test_loader, lossfunction, nepoc
             @save modelparamfile θvalue
             rmse = sqrt(sse) / test_loader.data.E_scale
             #println("Epoch: $epoch \t Loss: $loss rmse: $(rmse/length(test_loader)) [eV/atom] training mse: $loss_train")
-            println("Epoch: $epoch \t Loss: $loss rmse: $(rmse)) [eV/atom] training mse: $loss_train")
+            println(
+                "Epoch: $epoch \t Loss: $loss rmse: $(rmse)) [eV/atom] training mse: $loss_train",
+            )
 
         end
     end
@@ -122,7 +133,7 @@ export training!
 
 function training!(θ, re, trainloader, testloader, lossfunction, nepoch)
     state = Optimisers.setup(Optimisers.AdamW(), θ)
-    Ss = [get_S(istate, numspin) for istate in 1:2^numspin]
+    Ss = [get_S(istate, numspin) for istate = 1:(2^numspin)]
     for epoch = 1:nepoch
         loss = 0.0
         for (x, y, num, totalnumatom) in trainloader
@@ -144,9 +155,20 @@ function training!(θ, re, trainloader, testloader, lossfunction, nepoch)
     return θ, re
 end
 
-function train_batch!(x_train, y_train, model, loss, opt_state, x_test, y_test, nepoch, batchsize)
+function train_batch!(
+    x_train,
+    y_train,
+    model,
+    loss,
+    opt_state,
+    x_test,
+    y_test,
+    nepoch,
+    batchsize,
+)
     numtestdata = size(y_test)[2]
-    train_loader = Flux.DataLoader((x_train, y_train), batchsize=batchsize, shuffle=true)
+    train_loader =
+        Flux.DataLoader((x_train, y_train), batchsize = batchsize, shuffle = true)
     for it = 1:nepoch
         for (x, y) in train_loader
             grads = Flux.gradient(m -> loss(m(x), y), model)[1]

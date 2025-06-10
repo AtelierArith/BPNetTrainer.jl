@@ -6,8 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ 1c92796e-440b-11f0-25d3-1f2ef4f086f6
 begin
-	using TOML
-	using Flux
+    using TOML
+    using Flux
 end
 
 # ╔═╡ 6dc915e5-2099-4b28-9142-1c1c94599833
@@ -25,80 +25,76 @@ activations = ["tanh", "tanh"]
 
 # ╔═╡ e13a66c2-2cee-4403-975f-12611892febc
 begin
-	struct BPNet{Chains}
-		chains::Chains
-	end
+    struct BPNet{Chains}
+        chains::Chains
+    end
 
-	function apply_model(m, x)
-		m(x)
-	end
-	
-	function apply_bpmultimodel(ci, xi)
-		ei = map(apply_model, ci, xi.data)
-		return ei * xi.labels
-	end
-	
-	function (m::BPNet)(x)
-		energies = sum(eachindex(m.chains, axes(x, 1))) do i
-			apply_bpmultimodel(m.chains[i], x[i])
-		end
-		return energies
-	end
+    function apply_model(m, x)
+        m(x)
+    end
+
+    function apply_bpmultimodel(ci, xi)
+        ei = map(apply_model, ci, xi.data)
+        return ei * xi.labels
+    end
+
+    function (m::BPNet)(x)
+        energies = sum(eachindex(m.chains, axes(x, 1))) do i
+            apply_bpmultimodel(m.chains[i], x[i])
+        end
+        return energies
+    end
 end
 
 # ╔═╡ 99cb027c-bb2d-47ae-ba0a-4eb0438c5a66
 function make_dense_chain(
-	inputdim::Int, hidden_dims::Vector{Int}, activations::AbstractVector, resnet=false
+    inputdim::Int,
+    hidden_dims::Vector{Int},
+    activations::AbstractVector,
+    resnet = false,
 )
-	layers = []
-	dims = [
-		inputdim,
-		hidden_dims...,
-		1
-	]
-	for i in 1:length(dims)-1
-		h_in = dims[i]
-		h_out = dims[i+1]
-		if i == length(dims) - 1
-			# last layer
-			d = Flux.Dense(h_in, h_out)
-			push!(layers, d)
-			continue
-		else
-			d = if h_in == h_out
-				if resnet
-					Flux.Parallel(+, identity, Dense(h_in, h_out, activations[i]))
-				else
-					Flux.Dense(h_in, h_out, activations[i])
-				end
-			else
-				Flux.Dense(h_in, h_out, activations[i])
-			end
-			push!(layers, d)
-		end
-	end
-	return Flux.Chain(layers...)
+    layers = []
+    dims = [inputdim, hidden_dims..., 1]
+    for i = 1:(length(dims)-1)
+        h_in = dims[i]
+        h_out = dims[i+1]
+        if i == length(dims) - 1
+            # last layer
+            d = Flux.Dense(h_in, h_out)
+            push!(layers, d)
+            continue
+        else
+            d = if h_in == h_out
+                if resnet
+                    Flux.Parallel(+, identity, Dense(h_in, h_out, activations[i]))
+                else
+                    Flux.Dense(h_in, h_out, activations[i])
+                end
+            else
+                Flux.Dense(h_in, h_out, activations[i])
+            end
+            push!(layers, d)
+        end
+    end
+    return Flux.Chain(layers...)
 end
 
 # ╔═╡ 6baf670e-0d5f-4c9c-9fba-1414b7182bbf
 begin
-	atomtypes = ["Ti", "O"]
-	chains = map(enumerate(atomtypes)) do (itype, name)
-		itype_chains = Flux.Chain[]
-		for ikind in 1:num_basis_kinds
-			hidden_dims = toml[name]["layers"]
-			activations = getproperty.(
-				Ref(Flux), 
-				Symbol.(toml[name]["activations"])
-			)
+    atomtypes = ["Ti", "O"]
+    chains = map(enumerate(atomtypes)) do (itype, name)
+        itype_chains = Flux.Chain[]
+        for ikind = 1:num_basis_kinds
+            hidden_dims = toml[name]["layers"]
+            activations = getproperty.(Ref(Flux), Symbol.(toml[name]["activations"]))
 
-			inputdim = 32 # from fingerprint params
-			c = make_dense_chain(inputdim, hidden_dims, activations)
-			push!(itype_chains, c)
-		end
-		itype_chains
-	end
-	model = BPNet(chains)
+            inputdim = 32 # from fingerprint params
+            c = make_dense_chain(inputdim, hidden_dims, activations)
+            push!(itype_chains, c)
+        end
+        itype_chains
+    end
+    model = BPNet(chains)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

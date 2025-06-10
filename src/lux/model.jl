@@ -65,6 +65,6 @@ function LuxBPNet(toml::Dict{String,Any}, fingerprint_params)
 end
 
 function (m::LuxBPNet)(x, ps, st::NamedTuple)
-    y, st = Lux.apply(m.layer, Tuple(x),  ps.layer, st.layer)
-    return y, (; layer=st)
+    y, st = Lux.apply(m.layer, Tuple(x), ps.layer, st.layer)
+    return y, (; layer = st)
 end

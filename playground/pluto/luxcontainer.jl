@@ -6,80 +6,68 @@ using InteractiveUtils
 
 # ╔═╡ 82c66c76-4428-11f0-1641-77b9d502ca72
 begin
-	using Random
+    using Random
 
-	using ConcreteStructs
-	using LuxCore
-	using Lux
+    using ConcreteStructs
+    using LuxCore
+    using Lux
 end
 
 # ╔═╡ de3b9488-eb05-4573-b63a-c486a75d13c8
-struct MyData{D, L}
-	data::D
-	labels::L
+struct MyData{D,L}
+    data::D
+    labels::L
 end
 
 # ╔═╡ 24a34b36-33c7-4a71-9fbd-b4854b5db3c2
 begin
-	mydata = MyData(
-		[rand(Float32, 10, 3), rand(Float32, 10, 3)],
-		[1,1,1]
-	)
-	
-	mydata2 = MyData(
-		[rand(Float32, 10, 3), rand(Float32, 10, 3)],
-		[1,1,1]
-	)
+    mydata = MyData([rand(Float32, 10, 3), rand(Float32, 10, 3)], [1, 1, 1])
+
+    mydata2 = MyData([rand(Float32, 10, 3), rand(Float32, 10, 3)], [1, 1, 1])
 end
 
 # ╔═╡ abf69b19-cc68-4f0f-bfdb-d2589e77aa19
 begin
-	struct LayerAcceptsInputWithDataAndLabels{L} <: LuxCore.AbstractLuxWrapperLayer{:layers}
-		layers::L
-		function LayerAcceptsInputWithDataAndLabels(layers...)
-			l = Parallel(+, layers...)
-			new{typeof(l)}(l)
-		end
-	end
-	
-	function (m::LayerAcceptsInputWithDataAndLabels)(x, ps, st::NamedTuple)
-		y, st = Lux.apply(m.layers, Tuple(x.data), ps, st)
-		y * x.labels, st
-	end
+    struct LayerAcceptsInputWithDataAndLabels{L} <: LuxCore.AbstractLuxWrapperLayer{:layers}
+        layers::L
+        function LayerAcceptsInputWithDataAndLabels(layers...)
+            l = Parallel(+, layers...)
+            new{typeof(l)}(l)
+        end
+    end
+
+    function (m::LayerAcceptsInputWithDataAndLabels)(x, ps, st::NamedTuple)
+        y, st = Lux.apply(m.layers, Tuple(x.data), ps, st)
+        y * x.labels, st
+    end
 end
 
 # ╔═╡ 1c23f1e6-fdfb-4672-a993-9a5124e05092
 let
-	rng = Xoshiro(0)
-	model = LayerAcceptsInputWithDataAndLabels(Chain(Dense(10, 2)))
-	ps, st = Lux.setup(rng, model)
-	model(mydata, ps, st)
+    rng = Xoshiro(0)
+    model = LayerAcceptsInputWithDataAndLabels(Chain(Dense(10, 2)))
+    ps, st = Lux.setup(rng, model)
+    model(mydata, ps, st)
 end
 
 # ╔═╡ 7d856b2d-c81a-42e7-ac60-83fb370f8041
 let
-	rng = Xoshiro(0)
-	model = LayerAcceptsInputWithDataAndLabels(
-		Chain(Dense(10, 2)), Chain(Dense(10, 2))
-	)
-	ps, st = Lux.setup(rng, model)
-	model(mydata, ps, st)
+    rng = Xoshiro(0)
+    model = LayerAcceptsInputWithDataAndLabels(Chain(Dense(10, 2)), Chain(Dense(10, 2)))
+    ps, st = Lux.setup(rng, model)
+    model(mydata, ps, st)
 end
 
 # ╔═╡ 18b71bb7-5454-41f4-971c-06c233e0d013
 let
-	rng = Xoshiro(0)
-	model1 = LayerAcceptsInputWithDataAndLabels(
-		Chain(Dense(10, 2)), Chain(Dense(10, 2))
-	)
-	model2 = LayerAcceptsInputWithDataAndLabels(
-		Chain(Dense(10, 2)), Chain(Dense(10, 2))
-	)
+    rng = Xoshiro(0)
+    model1 = LayerAcceptsInputWithDataAndLabels(Chain(Dense(10, 2)), Chain(Dense(10, 2)))
+    model2 = LayerAcceptsInputWithDataAndLabels(Chain(Dense(10, 2)), Chain(Dense(10, 2)))
 
-	model = Parallel(+, model1, model2)
+    model = Parallel(+, model1, model2)
 
-	ps, st = Lux.setup(rng, model)
-	model((mydata, mydata2), ps, st)
+    ps, st = Lux.setup(rng, model)
+    model((mydata, mydata2), ps, st)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

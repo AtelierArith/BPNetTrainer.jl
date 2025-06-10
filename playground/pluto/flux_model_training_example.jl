@@ -18,8 +18,8 @@ end
 
 # ╔═╡ 799f9576-7cbd-4a0b-9136-807b0f55f5d2
 begin
-	using Flux
-	using MLUtils
+    using Flux
+    using MLUtils
 end
 
 # ╔═╡ b1745dc3-b967-4018-9054-32412e936d3c
@@ -52,31 +52,38 @@ model(x)
 
 # ╔═╡ 389ae298-8eb8-4531-9b24-76681deff0a3
 begin
-	numbatch = toml["numbatch"]
-	train_loader = DataLoader(traindata; batchsize=numbatch)
-	println("num. of training data $(length(traindata))")
+    numbatch = toml["numbatch"]
+    train_loader = DataLoader(traindata; batchsize = numbatch)
+    println("num. of training data $(length(traindata))")
 
-	testdata = BPDataMemory(bpdata, filename_test)
-	test_loader = DataLoader(testdata; batchsize=1)
-	println("num. of testing data $(length(testdata))")
+    testdata = BPDataMemory(bpdata, filename_test)
+    test_loader = DataLoader(testdata; batchsize = 1)
+    println("num. of testing data $(length(testdata))")
 end
 
 # ╔═╡ efc015ed-5617-4550-b5cc-d978f8e7a39d
 begin
-	θ, re = Flux.destructure(model)
-	#grad = Flux.gradient(θ -> sum(re(θ)(x)), θ)
-	#display(grad[1])
+    θ, re = Flux.destructure(model)
+    #grad = Flux.gradient(θ -> sum(re(θ)(x)), θ)
+    #display(grad[1])
 
-	state = BPNetTrainer.FluxEdition.set_state(toml, θ)
-	lossfunction(x, y) = Flux.mse(x, y)
-	# println(lossfunction(x, y))
-	println("num. of parameters: $(length(θ))")
+    state = BPNetTrainer.FluxEdition.set_state(toml, θ)
+    lossfunction(x, y) = Flux.mse(x, y)
+    # println(lossfunction(x, y))
+    println("num. of parameters: $(length(θ))")
 
 
-	nepoch = toml["nepoch"]
-	@time BPNetTrainer.FluxEdition.training!(
-		θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile=toml["modelparamfile"]
-	)
+    nepoch = toml["nepoch"]
+    @time BPNetTrainer.FluxEdition.training!(
+        θ,
+        re,
+        state,
+        train_loader,
+        test_loader,
+        lossfunction,
+        nepoch;
+        modelparamfile = toml["modelparamfile"],
+    )
 end
 
 # ╔═╡ Cell order:
