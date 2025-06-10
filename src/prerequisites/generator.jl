@@ -205,6 +205,6 @@ function generate_example_dataset()
         last(splitext(x)) == ".xsf"
     end
     adddata!(g, xsf_files)
-    set_numfiles!(g, 1000)
+    set_numfiles!(g, 5000)
     make_descriptor(g)
 end
