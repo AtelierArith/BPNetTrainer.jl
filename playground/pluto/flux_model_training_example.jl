@@ -74,7 +74,6 @@ begin
 
 
 	nepoch = toml["nepoch"]
-	nepoch = 100
 	@time BPNetTrainer.FluxEdition.training!(
 		θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile=toml["modelparamfile"]
 	)
