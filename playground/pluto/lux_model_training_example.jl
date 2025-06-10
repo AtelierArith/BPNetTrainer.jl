@@ -96,17 +96,18 @@ begin
 		_ps, _st = Lux.setup(rng, model)
 		ps = _ps |> device
 		st = _st |> device
-		tstate = Lux.Training.TrainState(model, ps, st, Adam(0.001f0))
+		tstate = Lux.Training.TrainState(model, ps, st, Optimisers.AdamW())
 		lossfn = OnlyFollowsLossFn(Lux.MSELoss())
 		nepoch = toml["nepoch"]
 	
-		for epoch in 1:100
-			@show epoch
-			println("Training phase")
+		for epoch in 1:nepoch
+			@info epoch
+			@info ("Training phase")
 			st = Lux.trainmode(st)
 	
-			train_losses = []
-			for (i, (x, y)) in enumerate(train_loader)
+			train_loss = 0.0
+			train_rmse = 0.0
+			for (i, (x, y, num, totalnumatom)) in enumerate(train_loader)
 				#=
 				x_dev = [
 					(; data = device(Lux.f32(e.data)), 
@@ -127,16 +128,19 @@ begin
 				_, loss, _, tstate = Lux.Training.single_train_step!(
 	                AutoZygote(), lossfn, (x_dev, y_dev), tstate
 	            )
-				push!(train_losses, cpu_device()(loss))
+				train_loss += cpu_device()(loss)
+				train_rmse += sqrt(train_loss) / (totalnumatom * test_loader.data.E_scale)
 			end
-			println("train loss: ", sum(train_losses) / length(train_loader))
+			@info ("train loss: ", train_loss / length(train_loader))
+			@info ("train rmse: ", train_rmse / length(train_loader), "[eV/atom]")
 	
 			st = Lux.testmode(st)
 
-			println("Validation phase")
-			test_losses = []
+			@info ("Validation phase")
+			test_loss = 0.0
+			test_rmse = 0.0
 				
-			for (i, (x, y)) in enumerate(test_loader)
+			for (i, (x, y, num, totalnumatom)) in enumerate(test_loader)
 				x_dev = [
 					(
 						Tuple(device(Lux.f32(e.data))), 
@@ -148,18 +152,18 @@ begin
 	
 				ŷ, _ = Lux.apply(model, x_dev, ps, st)
 				loss = lossfn(ŷ, y_dev)
-				push!(test_losses, cpu_device()(loss))
+				test_loss += cpu_device()(loss)
+				test_rmse += sqrt(test_loss) / (totalnumatom * test_loader.data.E_scale)
 			end
 				
-			println("test loss: ", sum(test_losses) / length(test_loader))
+			@info ("test loss: ", test_loss / length(test_loader))
+			@info ("test rmse: ", test_rmse / length(test_loader), "[eV/atom]")
 		end
 	end
-	
-	@time luxtraining()
 end
 
 # ╔═╡ 381c35ae-3132-4dfb-8ae8-41061eb08deb
-
+@time luxtraining()
 
 # ╔═╡ Cell order:
 # ╠═640037f4-43f8-11f0-1b23-910aaead95b2
