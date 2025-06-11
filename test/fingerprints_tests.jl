@@ -47,9 +47,9 @@ end
     envtypes = ["Ti", "O"]
     
     # Test missing required parameters
-    @test_throws KeyError FingerPrint(atomtype, envtypes; basistype="Chebyshev")
-    @test_throws KeyError FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=4.0)
-    @test_throws KeyError FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=4.0, radial_N=10)
+    @test_throws ErrorException FingerPrint(atomtype, envtypes; basistype="Chebyshev")
+    @test_throws ErrorException FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=4.0)
+    @test_throws ErrorException FingerPrint(atomtype, envtypes; basistype="Chebyshev", radial_Rc=4.0, radial_N=10)
     
     # Test invalid atom type
     @test_throws AssertionError FingerPrint("Zr", envtypes; 

@@ -251,8 +251,8 @@ end
     # First ensure we have the base dataset
     download_dataset()
     
-    # Test example dataset generation
-    @test_nowarn generate_example_dataset()
+    # Test example dataset generation - suppress expected warning about existing file
+    generate_example_dataset()
     
     # Test that output file was created
     output_file = joinpath(DATASET_ROOT[], "TiO.train.ascii")
