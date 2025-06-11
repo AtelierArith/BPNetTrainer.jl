@@ -7,6 +7,64 @@ function (fn::OnlyFollowsLossFn)(ŷ, y)
     only(fn.fn_internal(ŷ, y))
 end
 
+"""
+    training(bpdata, toml)
+
+Train a neural network using the Lux.jl framework.
+
+This is the main training function for the Lux edition of BPNetTrainer. It handles
+the complete training pipeline including data preparation, model creation, 
+optimization setup, and training loop execution.
+
+# Arguments
+- `bpdata::BPDataset`: Dataset containing training structures and fingerprints
+- `toml::Dict`: Configuration dictionary (typically from TOML file)
+
+# Required TOML Configuration
+- `testratio::Float64`: Fraction of data for testing (e.g., 0.1 for 10%)
+- `filename_train::String`: Name for training data JLD2 file
+- `filename_test::String`: Name for test data JLD2 file  
+- `numbatch::Int`: Batch size for training
+- `nepoch::Int`: Number of training epochs
+- `lr::Float64`: Learning rate for Adam optimizer
+
+# Model Configuration (per atom type in toml)
+```toml
+[model.Ti]
+layers = [100, 50, 25, 1]  # Hidden layer sizes + output
+activations = ["tanh", "tanh", "tanh", "identity"]
+```
+
+# Process
+1. Creates train/test split using `make_train_and_test_jld2`
+2. Loads data into memory using `BPDataMemory`
+3. Sets up data loaders with specified batch size
+4. Creates `LuxBPNet` model from configuration
+5. Initializes model parameters and optimizer state
+6. Runs training loop with logging and GPU acceleration
+
+# Output
+- Prints training progress (epoch, train loss, test loss)
+- Uses GPU acceleration if available
+- Model parameters are updated in-place during training
+
+# Example
+```julia
+using BPNetTrainer
+
+# Load configuration and data
+tomlpath = joinpath(pkgdir(BPNetTrainer), "configs", "test_input.toml")
+bpdata, toml = BPDataset(tomlpath)
+
+# Train the model
+BPNetTrainer.LuxEdition.training(bpdata, toml)
+```
+
+# See also
+- [`BPNetTrainer.FluxEdition.training!`](@ref): Flux version
+- [`LuxBPNet`](@ref): Neural network model structure  
+- [`BPDataMemory`](@ref): Memory-efficient data loading
+"""
 function training(bpdata, toml)
     device = gpu_device()
 

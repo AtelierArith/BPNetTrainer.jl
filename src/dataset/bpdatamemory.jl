@@ -1,3 +1,52 @@
+"""
+    BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
+
+Memory-efficient dataset structure for neural network training.
+
+This structure loads data from JLD2 files into memory for fast access during training.
+It provides efficient batch loading and data access patterns optimized for machine
+learning workflows. Unlike BPDataset which reads from files on-demand, BPDataMemory
+preloads all data for maximum training speed.
+
+# Type Parameters
+- `keys`: Named tuple keys for atom types (e.g., `(:Ti, :O)`)
+- `num_of_types`: Number of different atom types
+- `num_of_structs`: Number of atomic structures
+- `numbasiskinds`: Number of basis function types
+- `TE`: Type of energy storage array
+- `TC`: Type of coefficients storage
+- `TNA`: Type of natoms storage array
+
+# Fields
+- `E_scale::Float64`: Energy scaling factor for normalization
+- `E_shift::Float64`: Energy shift value for normalization
+- `energy_all::TE`: All structure energies
+- `coefficients_all::TC`: All fingerprint coefficients organized by structure
+- `natoms_all::TNA`: Number of atoms in each structure
+
+# Usage Pattern
+1. Create from BPDataset and JLD2 file: `BPDataMemory(dataset, "train.jld2")`
+2. Access single structures: `data[i]`
+3. Access batches: `data[indices]`
+4. Get training batches with structured output for ML frameworks
+
+# Example
+```julia
+# Load training data into memory
+train_data = BPDataMemory(dataset, "train.jld2")
+
+# Access single structure
+structure = train_data[1]
+
+# Access batch for training
+batch_indices = [1, 5, 10, 15]
+batch_data = train_data[batch_indices]
+```
+
+# See also
+- [`BPDataset`](@ref): File-based dataset access
+- [`make_train_and_test_jld2`](@ref): Creates JLD2 files for this structure
+"""
 struct BPDataMemory{keys,num_of_types,num_of_structs,numbasiskinds,TE,TC,TNA}
     E_scale::Float64
     E_shift::Float64

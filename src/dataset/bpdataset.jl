@@ -1,3 +1,46 @@
+"""
+    BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,num_kinds}
+
+Main dataset structure for BPNet training data.
+
+This structure holds all information needed for neural network training including
+atomic configurations, energies, fingerprints, and normalization parameters.
+It provides efficient access to training data and handles file I/O operations.
+
+# Type Parameters
+- `keys`: Named tuple keys for atom types (e.g., `(:Ti, :O)`)
+- `num_of_types`: Number of different atom types
+- `num_of_structs`: Number of atomic structures in the dataset
+- `Tfp`: Type of fingerprint data
+- `Td`: Type of data file handle
+- `num_kinds`: Number of fingerprint basis kinds
+
+# Fields
+- `filename::String`: Path to the main data file
+- `num_of_types::Int64`: Number of atom types in the system
+- `num_of_structs::Int64`: Total number of atomic structures
+- `type_names::Vector{String}`: Names of atom types (e.g., ["Ti", "O"])
+- `E_atom::Vector{Float64}`: Atomic reference energies
+- `normalized::Bool`: Whether energies are normalized
+- `E_scale::Float64`: Energy scaling factor
+- `E_shift::Float64`: Energy shift value
+- `natomtot::Int64`: Total number of atoms across all structures
+- `E_avg::Float64`: Average energy
+- `E_min::Float64`: Minimum energy in dataset
+- `E_max::Float64`: Maximum energy in dataset
+- `has_setups::Bool`: Whether fingerprint setups are available
+- `fp::Tfp`: File pointer for data access
+- `fingerprints::NamedTuple`: Fingerprint definitions for each atom type
+- `headerposision::Int64`: Position of header in data file
+- `datafilenames::Vector{String}`: List of data files
+- `fileused::Vector{Bool}`: Track which files have been used
+- `datafile::Td`: Data file handle
+- `fingerprint_parameters::Vector{Vector{FingerPrintParams}}`: Fingerprint parameters
+
+# See also
+- [`BPDataset(tomlpath::AbstractString)`](@ref): Main constructor
+- [`BPDataMemory`](@ref): Memory-efficient version for training
+"""
 struct BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,num_kinds}
     filename::String
     num_of_types::Int64
@@ -22,6 +65,27 @@ struct BPDataset{keys,num_of_types,num_of_structs,Tfp,Td,num_kinds}
     fingerprint_parameters::Vector{Vector{FingerPrintParams}}
 end
 
+"""
+    get_inputdim(dataset::BPDataset, name::Union{String,Symbol})
+
+Get the input dimension for a specific atom type.
+
+Returns the number of symmetry functions (fingerprint dimensions) for the
+specified atom type, which corresponds to the input size for the neural network.
+
+# Arguments
+- `dataset::BPDataset`: The dataset containing fingerprint information
+- `name::Union{String,Symbol}`: Name of the atom type (e.g., "Ti" or :Ti)
+
+# Returns
+- `Int`: Number of fingerprint dimensions for the specified atom type
+
+# Example
+```julia
+inputdim_Ti = get_inputdim(dataset, "Ti")
+inputdim_O = get_inputdim(dataset, :O)
+```
+"""
 function get_inputdim(dataset::BPDataset, name::String)
     return get_inputdim(dataset, Symbol(name))
 end
@@ -30,15 +94,84 @@ function get_inputdim(dataset::BPDataset, name::Symbol)
     return getfield(dataset.fingerprints, name).nsf
 end
 
+"""
+    Base.length(dataset::BPDataset)
+
+Return the number of atomic structures in the dataset.
+
+# Arguments
+- `dataset::BPDataset`: The dataset
+
+# Returns
+- `Int`: Number of structures available for training
+"""
 function Base.length(dataset::BPDataset)
     return dataset.num_of_structs
 end
 
+"""
+    reload_data!(dataset::BPDataset)
+
+Reset the file usage tracking to allow reusing all data.
+
+This function marks all data files as unused, allowing the dataset to cycle
+through all available data again. Useful for multiple training epochs.
+
+# Arguments
+- `dataset::BPDataset`: The dataset to reset
+
+# Returns
+- `nothing`
+"""
 function reload_data!(dataset::BPDataset)
     dataset.fileused .= 0
     return nothing
 end
 
+"""
+    BPDataset(tomlpath::AbstractString)
+
+Construct a BPDataset from a TOML configuration file.
+
+This is the main constructor for BPDataset that reads training data and configuration
+from a TOML file. It handles file parsing, fingerprint setup, and data validation.
+
+# Arguments
+- `tomlpath::AbstractString`: Path to the TOML configuration file
+
+# Returns
+- `BPDataset`: Fully configured dataset ready for training
+- `Dict`: Parsed TOML configuration data
+
+# Required TOML fields
+- `trainfile`: Path to the main training data file
+- `atomtypes`: Vector of atom type names (e.g., ["Ti", "O"])
+- `maxenergy`: Maximum energy threshold
+
+# Example TOML structure
+```toml
+trainfile = "train.data"
+atomtypes = ["Ti", "O"]
+maxenergy = 1000.0
+
+[fingerprint.Ti]
+basistype = "Chebyshev"
+radial_Rc = 6.0
+radial_N = 10
+angular_Rc = 4.0
+angular_N = 5
+```
+
+# Example usage
+```julia
+tomlpath = "configs/test_input.toml"
+bpdata, toml = BPDataset(tomlpath)
+```
+
+# Throws
+- `AssertionError`: If atom types in file don't match TOML configuration
+- `SystemError`: If files cannot be opened or read
+"""
 function BPDataset(tomlpath::AbstractString)
     d = DATASET_ROOT[]
     data = TOML.parsefile(tomlpath)

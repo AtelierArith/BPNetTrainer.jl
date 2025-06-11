@@ -81,6 +81,55 @@ function testprocess(θ::Vector{Float64}, re, state, test_loader, lossfunction)
     return loss, rmse, sse
 end
 
+"""
+    training!(θ, re, state, train_loader, test_loader, lossfunction, nepoch; modelparamfile="tempmodelparams_flux.jld2")
+
+Execute the main training loop for Flux-based neural networks.
+
+This function runs the complete training process including forward passes, 
+backpropagation, parameter updates, and periodic evaluation on test data.
+It saves model parameters after each epoch for recovery and analysis.
+
+# Arguments
+- `θ`: Model parameters (typically from `Flux.params(model)`)
+- `re`: Model reconstruction function 
+- `state`: Optimizer state (from `set_state`)
+- `train_loader`: DataLoader for training data
+- `test_loader`: DataLoader for test/validation data  
+- `lossfunction`: Loss function to minimize
+- `nepoch::Int`: Number of training epochs
+
+# Keyword Arguments
+- `modelparamfile::String="tempmodelparams_flux.jld2"`: File to save model parameters
+
+# Process
+For each epoch:
+1. Executes training step using `trainprocess!`
+2. Evaluates on test data using `testprocess`
+3. Prints progress (epoch, train loss, test RMSE, test SSE)
+4. Saves current model parameters to JLD2 file
+
+# Output Format
+```
+Epoch: 1, Train Loss: 0.1234, Test RMSE: 0.0567, Test SSE: 0.0890
+```
+
+# Example Usage
+```julia
+# Setup (typically done in higher-level training function)
+θ = Flux.params(model)
+state = set_state(inputdata, θ)
+lossfunction = Flux.mse
+
+# Run training
+training!(θ, model, state, train_loader, test_loader, lossfunction, 100)
+```
+
+# See also
+- [`trainprocess!`](@ref): Single training epoch implementation
+- [`testprocess`](@ref): Test evaluation implementation  
+- [`set_state`](@ref): Optimizer state initialization
+"""
 function training!(
     θ,
     re,

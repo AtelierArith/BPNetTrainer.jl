@@ -1,3 +1,35 @@
+"""
+    write_data_to_jld2(dataset::BPDataset, I::AbstractVector, filename)
+
+Write a subset of dataset structures to a JLD2 file.
+
+This function extracts specific structures from the dataset and saves them
+to a JLD2 file for efficient loading during training. It preserves all
+necessary information including coordinates, energies, forces, and coefficients.
+
+# Arguments
+- `dataset::BPDataset`: Source dataset containing the full data
+- `I::AbstractVector`: Indices of structures to write
+- `filename::String`: Output JLD2 filename
+
+# Saved Data Structure
+Each structure is saved as a numbered group containing:
+- `datafilename`: Original data file name
+- `filename`: Structure-specific filename
+- `natoms`: Number of atoms in the structure
+- `ntypes`: Number of atom types
+- `energy`: Total energy
+- `coefficients`: Fingerprint coefficients
+- `coordinates`: Atomic coordinates
+- `forces`: Atomic forces
+- `atomtypes`: Atom type indices
+
+# Example
+```julia
+indices = [1, 5, 10, 15]  # Select specific structures
+write_data_to_jld2(dataset, indices, "subset.jld2")
+```
+"""
 function write_data_to_jld2(dataset::BPDataset, I::AbstractVector, filename)
     fp = dataset.datafile
     f = jldopen(filename, "w")
@@ -339,6 +371,43 @@ function writefulldata_to_jld2_multi(
     return istruc2
 end
 
+"""
+    make_train_and_test_jld2(dataset::BPDataset, filename_train, filename_test; ratio=0.1)
+
+Create train and test JLD2 files from a BPDataset with random splitting.
+
+This is a key function for preparing data for machine learning training. It randomly
+splits the dataset into training and testing sets and saves them as separate JLD2 files
+for efficient loading during the training process.
+
+# Arguments
+- `dataset::BPDataset`: Source dataset to split
+- `filename_train::String`: Output filename for training data
+- `filename_test::String`: Output filename for test data
+- `ratio::Float64=0.1`: Fraction of data to use for testing (default 10%)
+
+# Process
+1. Randomly shuffles all structure indices
+2. Splits according to the specified ratio
+3. Writes training set to `filename_train`
+4. Writes test set to `filename_test`
+
+# Files are saved to
+Files are automatically saved to the dataset root directory (`DATASET_ROOT[]`).
+
+# Example
+```julia
+# Create 90% train / 10% test split
+make_train_and_test_jld2(dataset, "train.jld2", "test.jld2")
+
+# Create 80% train / 20% test split
+make_train_and_test_jld2(dataset, "train.jld2", "test.jld2", ratio=0.2)
+```
+
+# See also
+- [`BPDataMemory`](@ref): For loading the created JLD2 files
+- [`write_data_to_jld2`](@ref): Low-level function for writing data
+"""
 function make_train_and_test_jld2(
     dataset::BPDataset,
     filename_train,

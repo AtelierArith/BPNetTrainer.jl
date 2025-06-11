@@ -22,6 +22,12 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 
+[extras]
+ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
+
+[targets]
+test = ["ReTestItems"]
+
 [compat]
 BPNET_jll = "0.0.2"
 CodecBzip2 = "0.8.5"
@@ -40,3 +46,4 @@ Statistics = "1.11.1"
 TOML = "1.0.3"
 Tar = "1.10.0"
 TranscodingStreams = "0.11.3"
+ReTestItems = "1"

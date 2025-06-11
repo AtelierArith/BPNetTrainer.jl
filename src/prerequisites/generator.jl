@@ -166,6 +166,56 @@ function set_numfiles!(g::DataGenerator, numfiles)
     g.numfiles = numfiles
 end
 
+"""
+    generate_example_dataset()
+
+Generate processed training data from the downloaded TiO₂ example dataset.
+
+This function creates fingerprint descriptors and processes the downloaded
+XSF structure files into a format suitable for neural network training.
+It sets up Chebyshev basis functions for both Ti and O atoms and processes
+up to 5000 structures from the example dataset.
+
+# Prerequisites
+Must call [`download_dataset()`](@ref) first to obtain the raw XSF files.
+
+# Process
+1. Creates DataGenerator with Ti and O environment types
+2. Sets up Chebyshev fingerprints for Ti atoms (radial_Rc=8.0, angular_Rc=6.5)
+3. Sets up Chebyshev fingerprints for O atoms (same parameters)
+4. Locates XSF files in the extracted dataset
+5. Processes up to 5000 structures to create descriptor files
+
+# Fingerprint Parameters
+- **Radial functions**: Rc=8.0 Å, N=16 basis functions
+- **Angular functions**: Rc=6.5 Å, N=6 basis functions
+- **Basis type**: Chebyshev polynomials
+
+# Output Files
+Creates descriptor files in the dataset directory that can be used with:
+- [`BPDataset(tomlpath)`](@ref) for loading training data
+- Configuration files in `configs/` directory
+
+# Example
+```julia
+using BPNetTrainer
+
+# First download the raw data
+download_dataset()
+
+# Then process it for training
+generate_example_dataset()
+
+# Now ready to load for training
+tomlpath = joinpath(pkgdir(BPNetTrainer), "configs", "test_input.toml")
+bpdata, toml = BPDataset(tomlpath)
+```
+
+# See also
+- [`download_dataset()`](@ref): Downloads the raw XSF files
+- [`DataGenerator`](@ref): Core data processing functionality
+- [`make_descriptor()`](@ref): Low-level descriptor generation
+"""
 function generate_example_dataset()
     envtypes = ["Ti", "O"]
     g = DataGenerator(envtypes)
