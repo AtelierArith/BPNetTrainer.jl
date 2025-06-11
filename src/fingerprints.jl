@@ -295,14 +295,14 @@ for each basis component.
 
 # Supported Basis Types
 - `1`: Chebyshev polynomials
-- `2`: Spline functions
+- `2`: Spline functions  
 - `3`: Lennard-Jones (LJ) potentials
 
 # Example
 ```julia
-params = get_multifingerprints_info(multi_fingerprint)
-for param in params
-    println("Basis: $(param.basistype), Params: $(param.numparams)")
+fingerprint_params = get_multifingerprints_info(multi_basis_fingerprint)
+for fp_param in fingerprint_params
+    println("Basis: \$(fp_param.basistype), Params: \$(fp_param.numparams)")
 end
 ```
 """
@@ -334,7 +334,7 @@ function get_multifingerprints_info(fingerprint::FingerPrint)
             basistype,
             num_kinds,
             numparams_i,
-            params,
+            fingerprint_parameters,
             startindex,
             endindex,
         )

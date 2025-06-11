@@ -7,7 +7,6 @@ version = "0.1.0"
 BPNET_jll = "6d003e1e-9eb9-5314-b82e-2a0f9b6bc0eb"
 CodecBzip2 = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
-Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Lux = "b2108857-7c20-44ae-9111-449ecde12c47"
@@ -22,28 +21,29 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 
-[extras]
-ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
-
-[targets]
-test = ["ReTestItems"]
-
 [compat]
 BPNET_jll = "0.0.2"
 CodecBzip2 = "0.8.5"
 Downloads = "1.6.0"
-Enzyme = "0.13.49"
 Flux = "0.16.4"
 JLD2 = "0.5.13"
 Lux = "1.13.3"
 LuxCUDA = "0.3.3"
 MLUtils = "0.4.8"
 Optimisers = "0.4.6"
-Random = "1.11.0"
-Scratch = "1.2.1"
-SparseArrays = "1.11.0"
-Statistics = "1.11.1"
-TOML = "1.0.3"
-Tar = "1.10.0"
-TranscodingStreams = "0.11.3"
+Random = "1"
 ReTestItems = "1"
+Scratch = "1.2.1"
+SparseArrays = "1"
+Statistics = "1"
+TOML = "1"
+Tar = "1.10.0"
+Test = "1"
+TranscodingStreams = "0.11.3"
+
+[extras]
+ReTestItems = "817f1d60-ba6b-4fd5-9520-3cf149f6a823"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "ReTestItems"]
