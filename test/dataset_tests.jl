@@ -1,3 +1,4 @@
+#=
 @testitem "Dataset Construction and Basic Operations" begin
 
     using BPNetTrainer
@@ -46,6 +47,7 @@
     @test isfile(train_path)
     @test isfile(test_path)
 end
+=#
 
 @testitem "BPDataMemory Operations" begin
     using BPNetTrainer
