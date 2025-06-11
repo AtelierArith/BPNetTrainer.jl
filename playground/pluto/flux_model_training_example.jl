@@ -53,7 +53,7 @@ model(x)
 # ╔═╡ 389ae298-8eb8-4531-9b24-76681deff0a3
 begin
     numbatch = toml["numbatch"]
-    train_loader = DataLoader(traindata; batchsize = numbatch)
+    train_loader = DataLoader(traindata; batchsize = numbatch, shuffle=true)
     println("num. of training data $(length(traindata))")
 
     testdata = BPDataMemory(bpdata, filename_test)
@@ -74,6 +74,7 @@ begin
 
 
     nepoch = toml["nepoch"]
+	nepoch = 500
     @time BPNetTrainer.FluxEdition.training!(
         θ,
         re,
