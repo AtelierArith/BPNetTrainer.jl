@@ -21,5 +21,5 @@ $ julia --project playground/pluto/flux_model_training_example.jl
 ## Running training BPNet with Lux.jl
 
 ```sh
-$ julia --project playground/pluto/flux_model_training_example.jl 
+$ julia --project playground/pluto/lux_model_training_example.jl 
 ```
