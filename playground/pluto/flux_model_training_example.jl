@@ -9,6 +9,7 @@ begin
     using Pkg
     using Revise
     Pkg.activate(dirname(dirname(@__DIR__)))
+    Pkg.instantiate()
     using BPNetTrainer
     using BPNetTrainer: download_dataset, generate_example_dataset
     using BPNetTrainer: make_train_and_test_jld2

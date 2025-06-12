@@ -16,7 +16,6 @@ begin
     using Lux
     using MLUtils
     using Optimisers
-    using Enzyme
     using LuxCUDA
 
     using BPNetTrainer
