@@ -25,12 +25,22 @@ function ddptraining(distributed_backend, bpdata, toml)
     ratio = toml["testratio"]
     filename_train = toml["filename_train"]
     filename_test = toml["filename_test"]
-    make_train_and_test_jld2(bpdata, filename_train, filename_test; ratio)
+    if local_rank == 0
+        make_train_and_test_jld2(bpdata, filename_train, filename_test; ratio)
+    end
+
+    if local_rank == 0
+        traindata = BPDataMemory(bpdata, filename_train)
+    else
+        traindata = nothing
+    end
+    comm = MPI.COMM_WORLD
+    traindata = MPI.bcast(traindata, 0, comm)
 
     numbatch = toml["numbatch"]
     traindata = Lux.DistributedUtils.DistributedDataContainer(
         distributed_backend,
-        BPDataMemory(bpdata, filename_train)
+        traindata,
     )
 
     batchsize = numbatch ÷ total_workers
@@ -43,7 +53,7 @@ function ddptraining(distributed_backend, bpdata, toml)
         parallel = true,
     )
 
-    testdata = Lux.DistributedUtils.DistributedContainer(
+    testdata = Lux.DistributedUtils.DistributedDataContainer(
         distributed_backend,
         BPDataMemory(bpdata, filename_test),
     )
