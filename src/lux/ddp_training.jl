@@ -11,6 +11,7 @@ end
 Distributed data parallel training for a BPNet model using Lux.
 """
 function ddptraining(distributed_backend, bpdata, toml)
+    device = gpu_device()
     local_rank = Lux.DistributedUtils.local_rank(distributed_backend)
     total_workers = Lux.DistributedUtils.total_workers(distributed_backend)
 
