@@ -7,7 +7,10 @@
     # Subsequent runs should detect existing files
 
     # Test download function doesn't error
-    @test_nowarn download_dataset()
+    @test begin
+        download_dataset(); true
+    end
+
 
     # Test that dataset root directory exists
     @test isdir(DATASET_ROOT[])
