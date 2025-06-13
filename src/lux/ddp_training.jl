@@ -1,7 +1,8 @@
+
+
 function full_gc_and_reclaim()
     GC.gc(true)
     MLDataDevices.functional(CUDADevice) && CUDA.reclaim()
-    MLDataDevices.functional(AMDGPUDevice) && AMDGPU.reclaim()
     return nothing
 end
 
@@ -31,13 +32,20 @@ function ddptraining(distributed_backend, bpdata, toml)
 
     if local_rank == 0
         traindata = BPDataMemory(bpdata, filename_train)
+        testdata = BPDataMemory(bpdata, filename_test)
     else
         traindata = nothing
+        testdata = nothing
     end
     comm = MPI.COMM_WORLD
     traindata = MPI.bcast(traindata, 0, comm)
+    testdata = MPI.bcast(testdata, 0, comm)
+
+    train_E_scale = traindata.E_scale
+    test_E_scale = testdata.E_scale
 
     numbatch = toml["numbatch"]
+
     traindata = Lux.DistributedUtils.DistributedDataContainer(
         distributed_backend,
         traindata,
@@ -49,13 +57,12 @@ function ddptraining(distributed_backend, bpdata, toml)
         batchsize,
         shuffle = true,
         partial = false,
-        collate = true,
         parallel = true,
     )
 
     testdata = Lux.DistributedUtils.DistributedDataContainer(
         distributed_backend,
-        BPDataMemory(bpdata, filename_test),
+        testdata,
     )
 
     test_loader = MLUtils.DataLoader(
@@ -63,7 +70,6 @@ function ddptraining(distributed_backend, bpdata, toml)
         batchsize = 1,
         shuffle = false,
         partial = true,
-        collate = true,
         parallel = true,
     )
 
@@ -85,8 +91,8 @@ function ddptraining(distributed_backend, bpdata, toml)
     lossfn = OnlyFollowsLossFn(Lux.MSELoss())
     nepoch = toml["nepoch"]
     for epoch = 1:nepoch
-        @info epoch
-        @info ("Training phase")
+        should_log && @info epoch
+        should_log && @info ("Training phase")
         st = Lux.trainmode(st)
 
         train_loss = 0.0
@@ -95,7 +101,8 @@ function ddptraining(distributed_backend, bpdata, toml)
             x_dev = [(Tuple(device(Lux.f32(e.data))), device(Lux.f32(e.labels))) for e in x]
             y_dev = y |> Lux.f32 |> device
 
-            # ŷ, _ = Lux.apply(model, x_dev, ps, st)
+            ŷ, _ = Lux.apply(model, x_dev, ps, st)
+
             _, loss, _, tstate = Lux.Training.single_train_step!(
                 AutoZygote(),
                 lossfn,
@@ -106,11 +113,11 @@ function ddptraining(distributed_backend, bpdata, toml)
             train_sse += loss / totalnumatom^2
         end
         train_sse = train_sse / length(train_loader)
-        train_rmse = sqrt(train_sse) / train_loader.data.E_scale
-        @info ("train loss: ", train_loss / length(train_loader))
-        @info ("train rmse: ", train_rmse, "[eV/atom]")
+        train_rmse = sqrt(train_sse) / train_E_scale
+        should_log && @info ("train loss: ", train_loss / length(train_loader))
+        should_log && @info ("train rmse: ", train_rmse, "[eV/atom]")
 
-        @info ("Validation phase")
+        should_log && @info ("Validation phase")
         st = Lux.testmode(st)
 
         test_loss = 0.0
@@ -125,8 +132,8 @@ function ddptraining(distributed_backend, bpdata, toml)
             test_sse += loss / totalnumatom^2
         end
         test_sse = test_sse / length(test_loader)
-        test_rmse = sqrt(test_sse) / test_loader.data.E_scale
-        @info ("test loss: ", test_loss / length(test_loader))
-        @info ("test rmse: ", test_rmse / length(test_loader), "[eV/atom]")
+        test_rmse = sqrt(test_sse) / test_E_scale
+        should_log && @info ("test loss: ", test_loss / length(test_loader))
+        should_log && @info ("test rmse: ", test_rmse / length(test_loader), "[eV/atom]")
     end
 end

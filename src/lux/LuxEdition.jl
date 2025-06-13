@@ -3,6 +3,7 @@ module LuxEdition
 using Random
 using Dates
 
+using LuxCUDA: CUDA
 using Lux
 using MLUtils: MLUtils
 using Optimisers
