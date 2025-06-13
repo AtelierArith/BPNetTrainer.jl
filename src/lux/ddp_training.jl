@@ -61,14 +61,8 @@ function ddptraining(distributed_backend, bpdata, toml)
     rng = Xoshiro(1234)
     _ps, _st = Lux.setup(rng, model) |> device
 
-    ps = Lux.DistributedUtils.DistributedParameterContainer(
-        distributed_backend,
-        _ps,
-    )
-    st = Lux.DistributedUtils.DistributedStateContainer(
-        distributed_backend,
-        _st,
-    )
+    ps = DistributedUtils.synchronize!!(distributed_backend, _ps)
+    st = DistributedUtils.synchronize!!(distributed_backend, _st)
 
     opt = DistributedUtils.DistributedOptimizer(
         distributed_backend,
