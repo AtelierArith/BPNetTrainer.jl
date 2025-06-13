@@ -216,7 +216,7 @@ bpdata, toml = BPDataset(tomlpath)
 - [`DataGenerator`](@ref): Core data processing functionality
 - [`make_descriptor()`](@ref): Low-level descriptor generation
 """
-function generate_example_dataset()
+function generate_example_dataset(numfiles = 5000)
     envtypes = ["Ti", "O"]
     g = DataGenerator(envtypes)
 
@@ -257,6 +257,6 @@ function generate_example_dataset()
         last(splitext(x)) == ".xsf"
     end
     adddata!(g, xsf_files)
-    set_numfiles!(g, 5000)
+    set_numfiles!(g, numfiles)
     make_descriptor(g)
 end
