@@ -323,7 +323,6 @@ function BPDataset(tomlpath::AbstractString)
 
     numbasiskinds = data["numbasiskinds"]
     if numbasiskinds == 1
-        #=
         num_of_structs2 = writefulldata_to_jld2(
             fp,
             headerposision,
@@ -337,7 +336,6 @@ function BPDataset(tomlpath::AbstractString)
             data["normalize"],
         )
         num_of_structs = num_of_structs2
-        =#
     else
         num_of_structs2 = writefulldata_to_jld2_multi(
             data,

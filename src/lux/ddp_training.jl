@@ -11,7 +11,7 @@ end
 
 Distributed data parallel training for a BPNet model using Lux.
 """
-function ddptraining(distributed_backend, bpdata, toml)
+function ddptraining(distributed_backend, tomlpath)
     device = gpu_device()
     local_rank = Lux.DistributedUtils.local_rank(distributed_backend)
     total_workers = Lux.DistributedUtils.total_workers(distributed_backend)
@@ -23,23 +23,34 @@ function ddptraining(distributed_backend, bpdata, toml)
     sensible_print(msg) = should_log && print("[$(Dates.now())] ", msg)
 
 
+    if local_rank == 0
+        bpdata, toml = BPDataset(tomlpath)
+    else
+        bpdata = nothing
+        toml = nothing
+    end
+
+    bpdata = MPI.bcast(bpdata, 0, MPI.COMM_WORLD)
+    toml = MPI.bcast(toml, 0, MPI.COMM_WORLD)
+
     ratio = toml["testratio"]
     filename_train = toml["filename_train"]
     filename_test = toml["filename_test"]
-    if local_rank == 0
-        make_train_and_test_jld2(bpdata, filename_train, filename_test; ratio)
-    end
-
     if local_rank == 0
         traindata = BPDataMemory(bpdata, filename_train)
         testdata = BPDataMemory(bpdata, filename_test)
     else
         traindata = nothing
         testdata = nothing
+        filename_train = nothing
+        filename_test = nothing
     end
-    comm = MPI.COMM_WORLD
-    traindata = MPI.bcast(traindata, 0, comm)
-    testdata = MPI.bcast(testdata, 0, comm)
+    traindata = MPI.bcast(traindata, 0, MPI.COMM_WORLD)
+    testdata = MPI.bcast(testdata, 0, MPI.COMM_WORLD)
+
+    if local_rank == 0
+        make_train_and_test_jld2(bpdata, filename_train, filename_test; ratio)
+    end
 
     train_E_scale = traindata.E_scale
     test_E_scale = testdata.E_scale

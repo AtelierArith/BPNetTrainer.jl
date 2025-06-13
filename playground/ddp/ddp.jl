@@ -33,7 +33,6 @@ end
 #generate_example_dataset(500)
 
 tomlpath = joinpath(pkgdir(BPNetTrainer), "configs", "test_input.toml")
-bpdata, toml = BPDataset(tomlpath)
 
-@time BPNetTrainer.LuxEdition.ddptraining(distributed_backend, bpdata, toml)
+@time BPNetTrainer.LuxEdition.ddptraining(distributed_backend, tomlpath)
 
