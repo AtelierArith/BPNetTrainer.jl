@@ -60,15 +60,7 @@ begin
 end
 
 # ╔═╡ bf703ec9-6e56-433e-ba70-ac92f8ad62ad
-begin
-	traindata = BPDataMemory(bpdata, filename_train)
-	train_loader = MLUtils.DataLoader(
-		traindata; batchsize = length(traindata), shuffle = true
-	)
-	
-	testdata = BPDataMemory(bpdata, filename_test)
-	test_loader = MLUtils.DataLoader(testdata; batchsize = 1)
-	
+begin	
 	model = LuxBPNet(toml, bpdata.fingerprint_parameters)
 	
 	rng = Xoshiro(1234)
@@ -81,7 +73,7 @@ end
 
 # ╔═╡ b2ae53f9-d6f8-42fd-a121-cae049fc7c1a
 begin
-	function _loss_function(p, batch)
+	function loss_function(p, batch)
 		(x, y, num, totalnumatom) = batch 
 	    x_dev = [
 			(Tuple(device(Lux.f32(e.data))), device(Lux.f32(e.labels))) for e in x
@@ -94,11 +86,9 @@ begin
 	
 	function loss_function(p, dataloader::MLUtils.DataLoader)
         loss = 0
-		sse = 0
 		for batch in dataloader
 			(x, y, num, totalnumatom) = batch 
-			loss += _loss_function(p, batch)	
-			sse += loss / totalnumatom^2
+			loss += loss_function(p, batch)	
 		end
 		return loss
 	end
@@ -112,14 +102,24 @@ optfun = OptimizationFunction(
 
 # ╔═╡ 539b3f61-3f58-4f17-85e1-30043a161b35
 let
+	traindata = BPDataMemory(bpdata, filename_train)
+	train_loader = MLUtils.DataLoader(
+		traindata; 
+		batchsize = 512, # length(traindata), 
+		shuffle = true
+	)
+	
+	testdata = BPDataMemory(bpdata, filename_test)
+	test_loader = MLUtils.DataLoader(testdata; batchsize = 1)
+	
 	function callback(state, l) #callback function to observe training
-	    # display(l)
-		@info l
+		@info "Training..."
+		# @info ("train loss: ", l / length(train_loader))
 	    return false
 	end
 	
 	optprob = OptimizationProblem(optfun, ps_ca, train_loader)
-	for e in 1:5
+	for e in 1:50
 		@info "epoch: $(e)"
 
 		res_with_optim = Optimization.solve(
@@ -143,8 +143,8 @@ let
 	        end
 	        train_sse = train_sse / length(train_loader)
 	        train_rmse = sqrt(train_sse) / train_loader.data.E_scale
-			@info ("test loss: ", train_loss / length(train_loader))
-	        @info ("test rmse: ", train_rmse / length(train_loader), "[eV/atom]")
+			@info ("train loss: ", train_loss / length(train_loader))
+	        @info ("train rmse: ", train_rmse / length(train_loader), "[eV/atom]")
 		end
 		
 		# Evaluate Test dataset

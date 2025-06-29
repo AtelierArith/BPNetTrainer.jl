@@ -15,11 +15,17 @@ $ julia -e 'using Pkg; Pkg.add("Revise")'
 ## Running training BPNet with Flux.jl
 
 ```sh
-$ julia --project playground/pluto/flux_model_training_example.jl 
+$ julia --project playground/pluto/flux_model_training_example.jl
 ```
 
 ## Running training BPNet with Lux.jl
 
 ```sh
-$ julia --project playground/pluto/lux_model_training_example.jl 
+$ julia --project playground/pluto/lux_model_training_example.jl
+```
+
+## Running training BPNet with Optimization/LBFGS
+
+```sh
+julia --project playground/pluto/optimization_model_training_example.jl
 ```
